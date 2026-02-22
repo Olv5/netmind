@@ -116,6 +116,7 @@
     display: flex; align-items: center; justify-content: space-between;
     background: var(--surface);
   }
+  .topbar-left { display: flex; align-items: center; gap: 4px; }
   .topbar-title { font-family: var(--sans); font-size: 16px; font-weight: 700; }
   .topbar-path { font-size: 11px; color: var(--text3); margin-top: 2px; }
   .topbar-path span { color: var(--text2); }
@@ -440,6 +441,62 @@
   .wc-signal.warn { background: rgba(245,158,11,0.08); color: #f59e0b; border-color: rgba(245,158,11,0.2); }
 
   .empty-box { padding: 28px; text-align: center; color: var(--text3); font-size: 12px; line-height: 1.7; }
+
+  /* MOBILE */
+  .hamburger {
+    display: none; background: none; border: none;
+    color: var(--text2); font-size: 20px; cursor: pointer;
+    padding: 4px 8px; margin-right: 8px; line-height: 1;
+  }
+  .sidebar-backdrop {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6); z-index: 200;
+    backdrop-filter: blur(2px);
+  }
+  .sidebar-backdrop.visible { display: block; }
+
+  @media (max-width: 768px) {
+    .hamburger { display: block; }
+
+    .sidebar {
+      position: fixed; left: 0; top: 0; bottom: 0;
+      z-index: 300; transform: translateX(-100%);
+      transition: transform 0.25s ease; width: 280px;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+    }
+    .sidebar.open { transform: translateX(0); }
+
+    .topbar { padding: 12px 16px; }
+    .topbar-title { font-size: 14px; }
+    .topbar-left { display: flex; align-items: center; }
+
+    .content { padding: 20px 16px; }
+
+    .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
+    .stat-value { font-size: 22px; }
+
+    .concept-body { grid-template-columns: 1fr; }
+    .connections-panel { margin-top: 16px; }
+
+    .grade-buttons { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+    .review-prompt { font-size: 16px; }
+    .review-card-top { padding: 18px 20px 16px; }
+    .review-card-body { padding: 18px 20px; }
+
+    .needs-work-box-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+    .needs-work-box-body { grid-template-columns: 1fr; }
+
+    .edges-grid { grid-template-columns: 1fr; }
+
+    .btn-review { font-size: 11px; padding: 7px 12px; }
+    .queue-badge { font-size: 10px; padding: 3px 8px; }
+
+    .graph-container { height: calc(100vh - 110px); }
+
+    .modal { padding: 20px; }
+    .grade-btn .gd { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -470,11 +527,17 @@
     </div>
   </aside>
 
+  <!-- Mobile backdrop -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
   <main class="main">
     <div class="topbar">
-      <div>
-        <div class="topbar-title" id="topbarTitle">Dashboard</div>
-        <div class="topbar-path" id="topbarPath"></div>
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div>
+          <div class="topbar-title" id="topbarTitle">Dashboard</div>
+          <div class="topbar-path" id="topbarPath"></div>
+        </div>
       </div>
       <div class="review-trigger">
         <div class="queue-badge" id="queueBadge"></div>
@@ -1056,6 +1119,7 @@ function showConcept(id) {
   const subEl = document.getElementById('subtopic-' + id);
   if (subEl) { subEl.classList.add('active'); document.getElementById('topic-item-' + t.id).classList.add('open'); }
   window._currentConceptId = id;
+  closeSidebar();
 }
 
 // ============================================================
@@ -1067,11 +1131,24 @@ function showView(name) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   const navEl = document.getElementById('nav-' + name);
   if (navEl) navEl.classList.add('active');
+  closeSidebar();
 
   if (name === 'dashboard') { renderDashboard(); document.getElementById('topbarTitle').textContent = 'Dashboard'; document.getElementById('topbarPath').innerHTML = ''; }
   else if (name === 'edges') { renderNeedsWork(); document.getElementById('topbarTitle').textContent = 'Needs Work'; document.getElementById('topbarPath').innerHTML = ''; }
   else if (name === 'graph') { document.getElementById('topbarTitle').textContent = 'Knowledge Graph'; document.getElementById('topbarPath').innerHTML = ''; setTimeout(renderGraph, 50); }
   else if (name === 'review') { document.getElementById('topbarTitle').textContent = 'Review Session'; document.getElementById('topbarPath').innerHTML = ''; }
+}
+
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  sidebar.classList.toggle('open');
+  backdrop.classList.toggle('visible');
+}
+
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebarBackdrop').classList.remove('visible');
 }
 
 function toggleTopic(id) { document.getElementById('topic-item-' + id).classList.toggle('open'); }
