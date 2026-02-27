@@ -404,6 +404,14 @@
   .del-btn:hover { color: var(--weak) !important; }
   .del-btn-sub { font-size: 12px; margin-left: auto; }
 
+  .topic-review-btn {
+    background: none; border: none; color: transparent;
+    font-size: 13px; cursor: pointer; padding: 0 3px;
+    line-height: 1; transition: color 0.15s; flex-shrink: 0;
+  }
+  .topic-header:hover .topic-review-btn { color: var(--text3); }
+  .topic-review-btn:hover { color: var(--accent) !important; }
+
   /* NEEDS WORK PAGE */
   .needs-work-box {
     background: var(--surface); border: 1px solid var(--border);
@@ -441,6 +449,87 @@
   .wc-signal.warn { background: rgba(245,158,11,0.08); color: #f59e0b; border-color: rgba(245,158,11,0.2); }
 
   .empty-box { padding: 28px; text-align: center; color: var(--text3); font-size: 12px; line-height: 1.7; }
+
+  /* STATS */
+  .stats-highlight-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px;
+  }
+  .stats-highlight-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .stats-highlight-box-header {
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .stats-highlight-box-header .nw-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .stats-highlight-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .stats-highlight-item:last-child { border-bottom: none; }
+  .stats-highlight-item:hover { background: var(--surface2); }
+  .shi-left { display: flex; flex-direction: column; gap: 2px; }
+  .shi-name { font-size: 12px; color: var(--text); }
+  .shi-topic { font-size: 10px; color: var(--text3); }
+  .shi-right { display: flex; align-items: center; gap: 10px; }
+  .shi-count {
+    font-family: var(--sans); font-size: 16px; font-weight: 700;
+    color: var(--accent); min-width: 28px; text-align: right;
+  }
+  .shi-count.neglected { color: var(--weak); }
+
+  .topic-stat-block {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; margin-bottom: 12px;
+  }
+  .topic-stat-header {
+    padding: 14px 18px; display: flex; align-items: center;
+    justify-content: space-between; cursor: pointer; transition: background 0.15s;
+  }
+  .topic-stat-header:hover { background: var(--surface2); }
+  .topic-stat-name {
+    font-family: var(--sans); font-size: 14px; font-weight: 700;
+  }
+  .topic-stat-summary {
+    display: flex; gap: 16px; font-size: 11px; color: var(--text3);
+  }
+  .topic-stat-summary span { display: flex; align-items: center; gap: 5px; }
+  .topic-stat-body { display: none; border-top: 1px solid var(--border); }
+  .topic-stat-block.open .topic-stat-body { display: block; }
+  .topic-stat-chevron { font-size: 10px; color: var(--text3); transition: transform 0.2s; }
+  .topic-stat-block.open .topic-stat-chevron { transform: rotate(90deg); }
+
+  .concept-stat-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 18px; border-bottom: 1px solid var(--border);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .concept-stat-row:last-child { border-bottom: none; }
+  .concept-stat-row:hover { background: var(--surface2); }
+  .csr-name { font-size: 12px; color: var(--text); flex: 1; min-width: 0; }
+  .csr-reviews {
+    font-size: 11px; color: var(--text3); white-space: nowrap;
+    min-width: 60px; text-align: right;
+  }
+  .ease-bar { width: 80px; height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+  .ease-fill { height: 100%; border-radius: 3px; }
+  .csr-status {
+    font-size: 9px; padding: 2px 7px; border-radius: 3px;
+    white-space: nowrap; min-width: 62px; text-align: center;
+  }
+  .csr-status.struggling { background: rgba(255,59,92,0.1); color: var(--weak); border: 1px solid rgba(255,59,92,0.2); }
+  .csr-status.learning { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+  .csr-status.strong { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
+  .csr-status.new { background: var(--surface2); color: var(--text3); border: 1px solid var(--border2); }
+
+  @media (max-width: 768px) {
+    .stats-highlight-grid { grid-template-columns: 1fr; }
+    .ease-bar { width: 50px; }
+    .csr-status { display: none; }
+  }
 
   /* MOBILE */
   .hamburger {
@@ -510,6 +599,9 @@
       <button class="nav-btn active" onclick="showView('dashboard')" id="nav-dashboard">
         <span class="icon">⬡</span> Dashboard
       </button>
+      <button class="nav-btn" onclick="showView('stats')" id="nav-stats">
+        <span class="icon">◎</span> Stats
+      </button>
       <button class="nav-btn" onclick="showView('edges')" id="nav-edges">
         <span class="icon">◌</span> Needs Work
       </button>
@@ -550,6 +642,11 @@
       <div class="view active" id="view-dashboard">
         <div class="stats-grid" id="statsGrid"></div>
         <div id="dashQueue"></div>
+      </div>
+
+      <!-- STATS -->
+      <div class="view" id="view-stats">
+        <div id="statsContent"></div>
       </div>
 
       <!-- NEEDS WORK -->
@@ -682,7 +779,7 @@
 // ============================================================
 // SUPABASE CONFIG — paste your keys here
 // ============================================================
-const SUPABASE_URL = 'https://rmcghljmwtzbykyqeoim.supabase.co';      // e.g. https://xxxx.supabase.co
+const SUPABASE_URL = 'https://rmcghljmwtzbykyqeoim.supabase.co/';      // e.g. https://xxxx.supabase.co
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtY2dobGptd3R6YnlreXFlb2ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3NzQ3OTEsImV4cCI6MjA4NzM1MDc5MX0.2r1loObmpbrDSpzBaUK-H-djQmODyK0WbfxarJPn6gc';  // the long anon/public key
 
 const headers = {
@@ -721,13 +818,17 @@ async function dbDelete(table, id) {
 // review.lastSession: which session it was last reviewed (for gap calc)
 // review.sessions: total times reviewed
 
-let data = { sessionCount: 0, topics: [] };
+let data = { sessionCount: 0, streak: 0, lastSessionDate: '', topics: [] };
 
 // ============================================================
 // PERSISTENCE — save/load from Supabase
 // ============================================================
 async function saveSessionCount() {
-  await dbUpsert('topics', { id: '__meta__', name: JSON.stringify({ sessionCount: data.sessionCount }) });
+  await dbUpsert('topics', { id: '__meta__', name: JSON.stringify({
+    sessionCount: data.sessionCount,
+    lastSessionDate: data.lastSessionDate || '',
+    streak: data.streak || 0
+  })});
 }
 
 async function saveTopic(topic) {
@@ -754,7 +855,12 @@ async function loadFromDB() {
     const topicRows = await dbGet('topics', 'order=created_at.asc');
     const metaRow = topicRows.find(t => t.id === '__meta__');
     if (metaRow) {
-      try { data.sessionCount = JSON.parse(metaRow.name).sessionCount || 0; } catch(e) {}
+      try {
+        const meta = JSON.parse(metaRow.name);
+        data.sessionCount = meta.sessionCount || 0;
+        data.lastSessionDate = meta.lastSessionDate || '';
+        data.streak = meta.streak || 0;
+      } catch(e) {}
     }
     const realTopics = topicRows.filter(t => t.id !== '__meta__');
 
@@ -976,6 +1082,7 @@ function renderSidebar() {
       <div class="topic-header" onclick="toggleTopic('${topic.id}')">
         <div class="topic-dot ${hasWeak ? 'has-weak' : anyReviewed ? 'reviewed' : ''}"></div>
         <span style="flex:1">${topic.name}</span>
+        <button class="topic-review-btn" onclick="event.stopPropagation();startTopicReview('${topic.id}')" title="Review this topic">⟳</button>
         <button class="del-btn" onclick="event.stopPropagation();deleteTopic('${topic.id}')" title="Delete topic">×</button>
         <span class="topic-chevron">▶</span>
       </div>
@@ -1009,7 +1116,7 @@ function renderDashboard() {
     <div class="stat-card"><div class="stat-label">Concepts</div><div class="stat-value accent">${all.length}</div></div>
     <div class="stat-card"><div class="stat-label">Weak Concepts</div><div class="stat-value ${weakConcepts.length > 0 ? 'weak' : 'accent'}">${weakConcepts.length}</div></div>
     <div class="stat-card"><div class="stat-label">Weak Edges</div><div class="stat-value ${weakEdges.length > 0 ? 'ok' : 'accent'}">${weakEdges.length}</div></div>
-    <div class="stat-card"><div class="stat-label">Sessions</div><div class="stat-value ok">${data.sessionCount}</div></div>
+    <div class="stat-card"><div class="stat-label">Streak 🔥</div><div class="stat-value ${data.streak >= 3 ? 'accent' : 'ok'}">${data.streak}d</div></div>
   `;
 
   const badge = document.getElementById('queueBadge');
@@ -1134,6 +1241,7 @@ function showView(name) {
   closeSidebar();
 
   if (name === 'dashboard') { renderDashboard(); document.getElementById('topbarTitle').textContent = 'Dashboard'; document.getElementById('topbarPath').innerHTML = ''; }
+  else if (name === 'stats') { renderStats(); document.getElementById('topbarTitle').textContent = 'Stats'; document.getElementById('topbarPath').innerHTML = ''; }
   else if (name === 'edges') { renderNeedsWork(); document.getElementById('topbarTitle').textContent = 'Needs Work'; document.getElementById('topbarPath').innerHTML = ''; }
   else if (name === 'graph') { document.getElementById('topbarTitle').textContent = 'Knowledge Graph'; document.getElementById('topbarPath').innerHTML = ''; setTimeout(renderGraph, 50); }
   else if (name === 'review') { document.getElementById('topbarTitle').textContent = 'Review Session'; document.getElementById('topbarPath').innerHTML = ''; }
@@ -1156,17 +1264,75 @@ function toggleTopic(id) { document.getElementById('topic-item-' + id).classList
 // ============================================================
 // REVIEW SESSION
 // ============================================================
+function bumpSession() {
+  const today = new Date().toISOString().split('T')[0];
+  if (data.lastSessionDate === today) return; // already bumped today
+
+  // Streak logic
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  if (data.lastSessionDate === yesterday) {
+    data.streak++; // reviewed yesterday → extend streak
+  } else if (data.lastSessionDate === '') {
+    data.streak = 1; // first ever session
+  } else {
+    data.streak = 1; // missed a day → reset
+  }
+
+  data.sessionCount++;
+  data.lastSessionDate = today;
+  saveSessionCount();
+}
+
 let reviewQueue = [];
 let reviewIndex = 0;
 let reviewResults = { graded: 0, skipped: 0, again: 0 };
+let sessionBumped = false; // only bump sessionCount on first actual grade
 
 function startReview() {
-  data.sessionCount++;
   reviewQueue = buildReviewQueue();
-  if (!reviewQueue.length) { alert('No concepts yet — add some first!'); data.sessionCount--; return; }
+  if (!reviewQueue.length) { alert('No concepts yet — add some first!'); return; }
   reviewIndex = 0;
   reviewResults = { graded: 0, skipped: 0, again: 0 };
+  sessionBumped = false;
   showView('review');
+  document.getElementById('reviewDone').classList.remove('visible');
+  document.getElementById('reviewCard').style.display = '';
+  showReviewCard();
+}
+
+function startTopicReview(topicId) {
+  const topic = data.topics.find(t => t.id === topicId);
+  if (!topic || !topic.subtopics.length) { alert('This topic has no concepts yet.'); return; }
+
+  const topicSubIds = new Set(topic.subtopics.map(s => s.id));
+
+  const conceptItems = topic.subtopics.map(s => ({
+    type: 'concept',
+    id: s.id, name: s.name, topicName: topic.name,
+    priority: computeConceptPriority(s),
+    sessions: s.review.sessions
+  }));
+
+  const edgeItems = getAllEdges()
+    .filter(e => e.strength < 2 && topicSubIds.has(e.aId) && topicSubIds.has(e.bId))
+    .map(e => ({
+      type: 'edge',
+      aId: e.aId, bId: e.bId,
+      aName: e.aName, bName: e.bName,
+      strength: e.strength,
+      priority: computeEdgePriority(e)
+    }));
+
+  const queue = [...conceptItems, ...edgeItems].sort((a, b) => b.priority - a.priority);
+  if (!queue.length) { alert('Nothing to review in this topic.'); return; }
+
+  reviewQueue = queue;
+  reviewIndex = 0;
+  reviewResults = { graded: 0, skipped: 0, again: 0 };
+  sessionBumped = false;
+
+  showView('review');
+  document.getElementById('topbarTitle').textContent = `Review: ${topic.name}`;
   document.getElementById('reviewDone').classList.remove('visible');
   document.getElementById('reviewCard').style.display = '';
   showReviewCard();
@@ -1217,12 +1383,14 @@ function skipCard() {
 }
 
 async function gradeCard(grade) {
+  // Only bump the session counter on the first actual grade — not on Start
+  if (!sessionBumped) { bumpSession(); sessionBumped = true; }
+
   const item = reviewQueue[reviewIndex];
   if (item.type === 'concept') {
     updateConceptAfterReview(item.id, grade);
     const { subtopic: s, topic: t } = getSubtopic(item.id);
     await saveConcept(s, t.id, t.name);
-    // Save degraded edges too
     for (const c of s.connections) {
       const found = getSubtopic(c.id);
       if (found) await saveConcept(found.subtopic, found.topic.id, found.topic.name);
@@ -1247,8 +1415,9 @@ function finishReview() {
   document.getElementById('reviewDone').classList.add('visible');
   document.getElementById('progressFill').style.width = '100%';
   document.getElementById('progressText').textContent = 'Done';
+  const streakMsg = data.streak > 1 ? `\n\n🔥 ${data.streak} day streak — keep it going!` : '';
   document.getElementById('doneSub').textContent =
-    `${reviewResults.graded} reviewed · ${reviewResults.skipped} skipped · ${reviewResults.again} marked Again\n\nPriority scores updated. Weakest and longest-untouched concepts will surface first next session.`;
+    `${reviewResults.graded} reviewed · ${reviewResults.skipped} skipped · ${reviewResults.again} marked Again\n\nPriority scores updated. Weakest and longest-untouched concepts will surface first next session.${streakMsg}`;
   renderDashboard();
 }
 
@@ -1256,14 +1425,150 @@ function reviewEdgeDirect(aId, bId) {
   const ra = getSubtopic(aId); const rb = getSubtopic(bId);
   if (!ra || !rb) return;
   const edge = ra.subtopic.connections.find(c => c.id === bId) || { strength: 0 };
-  data.sessionCount++;
   reviewQueue = [{ type: 'edge', aId, bId, aName: ra.subtopic.name, bName: rb.subtopic.name, strength: edge.strength, priority: 99 }];
   reviewIndex = 0;
   reviewResults = { graded: 0, skipped: 0, again: 0 };
+  sessionBumped = false;
   showView('review');
   document.getElementById('reviewDone').classList.remove('visible');
   document.getElementById('reviewCard').style.display = '';
   showReviewCard();
+}
+
+// ============================================================
+// STATS VIEW
+// ============================================================
+function easeToStatus(ease, sessions) {
+  if (sessions === 0) return { label: 'New', cls: 'new' };
+  if (ease < 1.7) return { label: 'Struggling', cls: 'struggling' };
+  if (ease < 2.3) return { label: 'Learning', cls: 'learning' };
+  return { label: 'Strong', cls: 'strong' };
+}
+
+function easeToColor(ease) {
+  if (ease < 1.7) return 'var(--weak)';
+  if (ease < 2.3) return '#f59e0b';
+  return 'var(--accent)';
+}
+
+function renderStats() {
+  const all = getAllSubtopics();
+  if (!all.length) {
+    document.getElementById('statsContent').innerHTML =
+      `<div class="empty-box">No concepts yet. Add topics and concepts to see stats.</div>`;
+    return;
+  }
+
+  // Most reviewed — top 5 by session count, must have at least 1 review
+  const mostReviewed = [...all]
+    .filter(s => s.review.sessions > 0)
+    .sort((a, b) => b.review.sessions - a.review.sessions)
+    .slice(0, 5);
+
+  // Most neglected — exclude anything in mostReviewed, sort by sessions asc then priority desc
+  const mostReviewedIds = new Set(mostReviewed.map(s => s.id));
+  const neglected = [...all]
+    .filter(s => !mostReviewedIds.has(s.id))
+    .sort((a, b) => {
+      if (a.review.sessions !== b.review.sessions) return a.review.sessions - b.review.sessions;
+      return computeConceptPriority(b) - computeConceptPriority(a);
+    })
+    .slice(0, 5);
+
+  const highlightHTML = `
+    <div class="stats-highlight-grid">
+      <div class="stats-highlight-box">
+        <div class="stats-highlight-box-header">
+          <div class="nw-dot" style="background:var(--accent)"></div>
+          Most Reviewed
+        </div>
+        ${mostReviewed.map(s => `
+          <div class="stats-highlight-item" onclick="showConcept('${s.id}')">
+            <div class="shi-left">
+              <div class="shi-name">${s.name}</div>
+              <div class="shi-topic">${s.topicName}</div>
+            </div>
+            <div class="shi-right">
+              <div class="shi-count">${s.review.sessions}</div>
+              <div style="font-size:10px;color:var(--text3)">reviews</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="stats-highlight-box">
+        <div class="stats-highlight-box-header">
+          <div class="nw-dot" style="background:var(--weak)"></div>
+          Most Neglected
+        </div>
+        ${neglected.map(s => `
+          <div class="stats-highlight-item" onclick="showConcept('${s.id}')">
+            <div class="shi-left">
+              <div class="shi-name">${s.name}</div>
+              <div class="shi-topic">${s.topicName}</div>
+            </div>
+            <div class="shi-right">
+              <div class="shi-count neglected">${s.review.sessions}</div>
+              <div style="font-size:10px;color:var(--text3)">reviews</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // Per-topic breakdown
+  const topicBlocksHTML = data.topics.map((topic, i) => {
+    if (!topic.subtopics.length) return '';
+    const totalReviews = topic.subtopics.reduce((sum, s) => sum + s.review.sessions, 0);
+    const avgEase = topic.subtopics.reduce((sum, s) => sum + s.review.easeScore, 0) / topic.subtopics.length;
+    const reviewed = topic.subtopics.filter(s => s.review.sessions > 0).length;
+    const status = easeToStatus(avgEase, reviewed);
+
+    const conceptRows = [...topic.subtopics]
+      .sort((a, b) => b.review.sessions - a.review.sessions)
+      .map(s => {
+        const st = easeToStatus(s.review.easeScore, s.review.sessions);
+        // ease 1.2–4.0 → normalize to 0–100%
+        const easePct = Math.round(((s.review.easeScore - 1.2) / (4.0 - 1.2)) * 100);
+        return `<div class="concept-stat-row" onclick="showConcept('${s.id}')">
+          <div class="csr-name">${s.name}</div>
+          <div class="ease-bar"><div class="ease-fill" style="width:${easePct}%;background:${easeToColor(s.review.easeScore)}"></div></div>
+          <div class="csr-reviews">${s.review.sessions} review${s.review.sessions !== 1 ? 's' : ''}</div>
+          <div class="csr-status ${st.cls}">${st.label}</div>
+        </div>`;
+      }).join('');
+
+    return `
+      <div class="topic-stat-block" id="tsb-${topic.id}">
+        <div class="topic-stat-header" onclick="toggleTopicStat('${topic.id}')">
+          <div>
+            <div class="topic-stat-name">${topic.name}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div class="topic-stat-summary">
+              <span>${totalReviews} total reviews</span>
+              <span>${reviewed}/${topic.subtopics.length} concepts touched</span>
+              <span class="csr-status ${status.cls}" style="font-size:9px;">${status.label}</span>
+            </div>
+            <span class="topic-stat-chevron">▶</span>
+          </div>
+        </div>
+        <div class="topic-stat-body">
+          <div style="display:flex;justify-content:space-between;padding:8px 18px 6px;font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">
+            <span>Concept</span>
+            <div style="display:flex;gap:52px;"><span>Ease</span><span>Reviews</span><span style="min-width:62px;text-align:center;">Status</span></div>
+          </div>
+          ${conceptRows}
+        </div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('statsContent').innerHTML = `
+    ${highlightHTML}
+    <div class="section-title">By Topic</div>
+    ${topicBlocksHTML}
+  `;
+}
+
+function toggleTopicStat(id) {
+  document.getElementById('tsb-' + id).classList.toggle('open');
 }
 
 // ============================================================
