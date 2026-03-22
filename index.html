@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NetMind — Knowledge Graph</title>
+<title>NetMind</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap');
 
@@ -14,8 +14,10 @@
     --border: #1f2330;
     --border2: #2a2f40;
     --accent: #00d4ff;
-    --accent2: #ff6b35;
+    --accent2: #7b61ff;
     --weak: #ff3b5c;
+    --ok: #10b981;
+    --warn: #f59e0b;
     --text: #e2e8f0;
     --text2: #8892a4;
     --text3: #4a5568;
@@ -24,93 +26,92 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--mono);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
+  body { background: var(--bg); color: var(--text); font-family: var(--mono); min-height: 100vh; overflow-x: hidden; }
   body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 1000; opacity: 0.4;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 1000;
-    opacity: 0.4;
   }
 
   .app { display: flex; height: 100vh; }
 
   /* SIDEBAR */
   .sidebar {
-    width: 260px; min-width: 260px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column; overflow: hidden;
+    width: 260px; min-width: 260px; background: var(--surface);
+    border-right: 1px solid var(--border); display: flex; flex-direction: column;
+    overflow: hidden; z-index: 100;
   }
-  .logo { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
-  .logo-text { font-family: var(--sans); font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+  .logo { padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+  .logo-text { font-family: var(--sans); font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
   .logo-text span { color: var(--accent); }
-  .logo-sub { font-size: 10px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+  .logo-sub { font-size: 9px; color: var(--text3); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
 
-  .nav { padding: 12px 8px; border-bottom: 1px solid var(--border); }
+  .nav { padding: 10px 10px 0; }
   .nav-btn {
-    display: flex; align-items: center; gap: 10px;
-    width: 100%; padding: 9px 12px; border-radius: 6px;
-    border: none; background: transparent; color: var(--text2);
-    font-family: var(--mono); font-size: 12px; cursor: pointer;
-    transition: all 0.15s; text-align: left;
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    padding: 8px 10px; border-radius: 6px; border: none; background: none;
+    color: var(--text2); font-family: var(--mono); font-size: 11px; cursor: pointer;
+    transition: all 0.15s; text-align: left; margin-bottom: 2px;
   }
   .nav-btn:hover { background: var(--surface2); color: var(--text); }
   .nav-btn.active { background: var(--surface2); color: var(--accent); }
-  .nav-btn .icon { font-size: 14px; width: 16px; text-align: center; }
+  .nav-btn .icon { font-size: 13px; }
 
-  .topics-section { flex: 1; overflow-y: auto; padding: 12px 8px; }
-  .topics-section::-webkit-scrollbar { width: 4px; }
-  .topics-section::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .topics-section { flex: 1; overflow-y: auto; padding: 8px 0; }
+  .section-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); padding: 8px 20px 4px; }
 
-  .section-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); padding: 4px 12px 8px; }
-
-  .topic-item { border-radius: 6px; overflow: hidden; margin-bottom: 2px; }
+  .topic-item { }
   .topic-header {
     display: flex; align-items: center; gap: 8px;
-    padding: 8px 12px; cursor: pointer; font-size: 12px;
-    color: var(--text2); transition: all 0.15s; border-radius: 6px;
+    padding: 7px 12px 7px 16px; cursor: pointer;
+    transition: background 0.15s; font-size: 11px; color: var(--text2);
   }
-  .topic-header:hover { background: var(--surface2); color: var(--text); }
-  .topic-chevron { font-size: 10px; transition: transform 0.2s; margin-left: auto; }
+  .topic-header:hover { background: var(--surface2); }
+  .topic-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border2); flex-shrink: 0; }
+  .topic-dot.has-items { background: var(--accent); }
+  .topic-chevron { font-size: 8px; color: var(--text3); transition: transform 0.2s; margin-left: auto; }
   .topic-item.open .topic-chevron { transform: rotate(90deg); }
-  .topic-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
-  .topic-dot.has-weak { background: var(--weak); }
-  .topic-dot.reviewed { background: var(--accent); }
+  .topic-folders { display: none; padding: 2px 0 4px 0; }
+  .topic-item.open .topic-folders { display: block; }
 
-  .subtopics { display: none; padding: 2px 0 4px 24px; }
-  .topic-item.open .subtopics { display: block; }
-  .subtopic-item {
+  .folder-row {
     display: flex; align-items: center; gap: 8px;
-    padding: 6px 12px; font-size: 11px; color: var(--text3);
-    cursor: pointer; border-radius: 4px; transition: all 0.15s;
+    padding: 5px 12px 5px 28px; cursor: pointer;
+    font-size: 10px; color: var(--text3); transition: all 0.15s;
   }
-  .subtopic-item:hover { background: var(--surface2); color: var(--text2); }
-  .subtopic-item.active { color: var(--accent); }
-  .subtopic-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .folder-row:hover { background: var(--surface2); color: var(--text2); }
+  .folder-row.active { color: var(--accent); }
+  .folder-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .folder-count {
+    margin-left: auto; font-size: 9px; color: var(--text3);
+    background: var(--surface2); padding: 1px 5px; border-radius: 3px;
+  }
+  .folder-count.has-due { background: rgba(0,212,255,0.1); color: var(--accent); }
 
-  .sidebar-footer { padding: 12px 8px; border-top: 1px solid var(--border); }
+  .del-btn {
+    background: none; border: none; color: transparent; font-size: 14px;
+    cursor: pointer; padding: 0 2px; line-height: 1; transition: color 0.15s; flex-shrink: 0;
+  }
+  .topic-header:hover .del-btn { color: var(--text3); }
+  .del-btn:hover { color: var(--weak) !important; }
+
+  .topic-review-btn {
+    background: none; border: none; color: transparent; font-size: 13px;
+    cursor: pointer; padding: 0 3px; line-height: 1; transition: color 0.15s; flex-shrink: 0;
+  }
+  .topic-header:hover .topic-review-btn { color: var(--text3); }
+  .topic-review-btn:hover { color: var(--accent) !important; }
+
+  .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); }
   .add-btn {
-    width: 100%; padding: 9px 12px; border-radius: 6px;
-    border: 1px dashed var(--border2); background: transparent;
-    color: var(--text3); font-family: var(--mono); font-size: 11px;
-    cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 6px; width: 100%;
+    padding: 8px 12px; border-radius: 6px; border: 1px dashed var(--border2);
+    background: none; color: var(--text3); font-family: var(--mono); font-size: 11px;
+    cursor: pointer; transition: all 0.15s;
   }
-  .add-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.04); }
+  .add-btn:hover { border-color: var(--accent); color: var(--accent); }
 
   /* MAIN */
-  .main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
   .topbar {
     padding: 16px 28px; border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
@@ -118,352 +119,201 @@
   }
   .topbar-left { display: flex; align-items: center; gap: 4px; }
   .topbar-title { font-family: var(--sans); font-size: 16px; font-weight: 700; }
-  .topbar-path { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .topbar-path span { color: var(--text2); }
-
+  .topbar-path { font-size: 10px; color: var(--text3); margin-top: 2px; }
   .review-trigger { display: flex; align-items: center; gap: 10px; }
   .queue-badge {
-    background: rgba(255,59,92,0.15); border: 1px solid rgba(255,59,92,0.3);
-    color: var(--weak); font-size: 11px; padding: 4px 10px; border-radius: 4px; display: none;
+    font-size: 10px; padding: 3px 8px; border-radius: 4px;
+    background: rgba(0,212,255,0.1); color: var(--accent);
+    border: 1px solid rgba(0,212,255,0.2); display: none;
   }
   .queue-badge.visible { display: block; }
   .btn-review {
     padding: 8px 16px; border-radius: 6px; border: 1px solid var(--accent);
-    background: rgba(0,212,255,0.08); color: var(--accent);
-    font-family: var(--mono); font-size: 12px; cursor: pointer; transition: all 0.2s;
+    background: rgba(0,212,255,0.08); color: var(--accent); font-family: var(--mono);
+    font-size: 12px; cursor: pointer; transition: all 0.2s;
   }
-  .btn-review:hover { background: rgba(0,212,255,0.18); }
+  .btn-review:hover { background: rgba(0,212,255,0.15); }
 
-  .content { flex: 1; overflow-y: auto; padding: 32px 28px; }
-  .content::-webkit-scrollbar { width: 4px; }
-  .content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  .content { flex: 1; overflow-y: auto; padding: 28px; }
 
   .view { display: none; }
-  .view.active { display: block; animation: fadeIn 0.2s ease; }
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .view.active { display: block; }
 
   /* DASHBOARD */
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-  .stat-label { font-size: 10px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
-  .stat-value { font-family: var(--sans); font-size: 28px; font-weight: 800; margin-top: 6px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 18px;
+  }
+  .stat-label { font-size: 10px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .stat-value { font-family: var(--sans); font-size: 28px; font-weight: 800; }
   .stat-value.accent { color: var(--accent); }
   .stat-value.weak { color: var(--weak); }
-  .stat-value.ok { color: #f59e0b; }
+  .stat-value.ok { color: var(--ok); }
 
   .section-title {
-    font-family: var(--sans); font-size: 14px; font-weight: 700;
-    color: var(--text2); margin-bottom: 12px;
-    display: flex; align-items: center; gap: 8px;
+    font-family: var(--sans); font-size: 12px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: var(--text3);
+    margin-bottom: 12px; margin-top: 4px;
   }
-  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-  .queue-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 32px; }
+  .queue-list { display: flex; flex-direction: column; gap: 6px; }
   .queue-item {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 14px 16px;
-    display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer; transition: all 0.2s;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 16px; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
   }
   .queue-item:hover { border-color: var(--border2); transform: translateX(2px); }
-  .queue-item-left { display: flex; flex-direction: column; gap: 3px; }
-  .queue-item-name { font-size: 13px; font-weight: 500; color: var(--text); }
-  .queue-item-sub { font-size: 11px; color: var(--text3); }
-  .queue-item-right { display: flex; align-items: center; gap: 10px; }
-  .priority-bar { width: 60px; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
-  .priority-fill { height: 100%; border-radius: 2px; background: var(--accent); }
-  .priority-fill.high { background: var(--weak); }
-  .priority-fill.mid { background: #f59e0b; }
-  .type-tag { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 7px; border-radius: 3px; }
-  .type-tag.concept { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
-  .type-tag.edge { background: rgba(255,107,53,0.1); color: var(--accent2); border: 1px solid rgba(255,107,53,0.2); }
+  .queue-item-left { flex: 1; min-width: 0; }
+  .queue-item-name { font-size: 12px; color: var(--text); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .queue-item-sub { font-size: 10px; color: var(--text3); }
+  .queue-item-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .priority-bar { width: 60px; height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .priority-fill { height: 100%; border-radius: 2px; background: var(--text3); }
+  .priority-fill.hi { background: var(--weak); }
+  .priority-fill.mid { background: var(--warn); }
+  .type-tag {
+    font-size: 9px; padding: 2px 6px; border-radius: 3px; letter-spacing: 0.5px;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .type-tag.atomic    { background: rgba(0,212,255,0.1);  color: var(--accent);  border: 1px solid rgba(0,212,255,0.15); }
+  .type-tag.process   { background: rgba(245,158,11,0.1); color: var(--warn);    border: 1px solid rgba(245,158,11,0.15); }
+  .type-tag.problem   { background: rgba(255,59,92,0.1);  color: var(--weak);    border: 1px solid rgba(255,59,92,0.15); }
+  .type-tag.reconstruction { background: rgba(123,97,255,0.1); color: var(--accent2); border: 1px solid rgba(123,97,255,0.15); }
 
-  /* WEAK EDGES VIEW */
-  .edges-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 10px; }
-  .edge-card {
+  /* ITEM LIST VIEW */
+  .item-list-header {
+    display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;
+  }
+  .item-list-title {
+    display: flex; align-items: center; gap: 10px;
+    font-family: var(--sans); font-size: 18px; font-weight: 700;
+  }
+  .type-badge {
+    font-size: 9px; padding: 3px 8px; border-radius: 4px;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  .type-badge.atomic        { background: rgba(0,212,255,0.1);  color: var(--accent);  border: 1px solid rgba(0,212,255,0.2); }
+  .type-badge.process       { background: rgba(245,158,11,0.1); color: var(--warn);    border: 1px solid rgba(245,158,11,0.2); }
+  .type-badge.problem       { background: rgba(255,59,92,0.1);  color: var(--weak);    border: 1px solid rgba(255,59,92,0.2); }
+  .type-badge.reconstruction{ background: rgba(123,97,255,0.1); color: var(--accent2); border: 1px solid rgba(123,97,255,0.2); }
+
+  .item-card {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s;
-    position: relative; overflow: hidden;
+    border-radius: 8px; margin-bottom: 8px; overflow: hidden; transition: border-color 0.15s;
   }
-  .edge-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-  .edge-card.s0::before { background: var(--weak); }
-  .edge-card.s1::before { background: #f59e0b; }
-  .edge-card.s2::before { background: var(--accent); }
-  .edge-card:hover { border-color: var(--border2); transform: translateY(-1px); }
-  .edge-card-nodes { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 8px; flex-wrap: wrap; }
-  .edge-arrow { color: var(--text3); font-size: 14px; }
-  .edge-card-meta { font-size: 11px; color: var(--text3); display: flex; justify-content: space-between; align-items: center; }
-  .edge-strength-label { font-size: 10px; padding: 2px 7px; border-radius: 3px; }
-  .edge-strength-label.s0 { background: rgba(255,59,92,0.1); color: var(--weak); }
-  .edge-strength-label.s1 { background: rgba(245,158,11,0.1); color: #f59e0b; }
-  .edge-strength-label.s2 { background: rgba(0,212,255,0.1); color: var(--accent); }
-
-  /* CONCEPT VIEW */
-  .concept-header { margin-bottom: 28px; }
-  .concept-breadcrumb { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
-  .concept-breadcrumb span { color: var(--text2); }
-  .concept-title { font-family: var(--sans); font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
-  .concept-meta { display: flex; gap: 10px; margin-top: 10px; font-size: 11px; flex-wrap: wrap; }
-  .concept-meta .tag { background: var(--surface2); border: 1px solid var(--border2); padding: 3px 8px; border-radius: 4px; color: var(--text3); }
-  .concept-meta .tag.hi { color: var(--weak); border-color: rgba(255,59,92,0.3); background: rgba(255,59,92,0.07); }
-
-  .concept-body { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
-
-  .explanation-label {
-    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-    color: var(--text3); margin-bottom: 10px;
-    display: flex; align-items: center; gap: 8px;
+  .item-card:hover { border-color: var(--border2); }
+  .item-card-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 14px 16px; gap: 12px; cursor: pointer;
   }
-  .explanation-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-  .explanation-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 20px; font-size: 13px;
-    line-height: 1.8; color: var(--text2); min-height: 140px; white-space: pre-wrap;
+  .item-card-question { font-size: 13px; color: var(--text); flex: 1; line-height: 1.6; }
+  .item-card-actions { display: flex; gap: 4px; flex-shrink: 0; margin-top: 2px; }
+  .item-action-btn {
+    background: none; border: none; color: var(--text3); font-size: 11px;
+    cursor: pointer; padding: 3px 7px; border-radius: 4px; transition: all 0.15s;
+    font-family: var(--mono);
   }
-  .explanation-empty { color: var(--text3); font-style: italic; }
-
-  .key-points { margin-top: 20px; }
-  .key-point {
-    display: flex; gap: 10px; padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 12px; color: var(--text2); align-items: flex-start;
+  .item-action-btn:hover { color: var(--text); background: var(--surface2); }
+  .item-action-btn.del:hover { color: var(--weak); }
+  .item-card-meta {
+    display: flex; gap: 8px; align-items: center;
+    padding: 0 16px 10px; font-size: 10px; color: var(--text3);
   }
-  .key-point:last-child { border-bottom: none; }
-  .kp-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-top: 5px; flex-shrink: 0; }
-
-  .connections-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-  .connections-title { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 14px; }
-  .connection-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 0; border-bottom: 1px solid var(--border);
-    cursor: pointer; transition: all 0.15s;
+  .due-tag {
+    font-size: 9px; padding: 2px 6px; border-radius: 3px;
+    background: rgba(0,212,255,0.08); color: var(--accent);
+    border: 1px solid rgba(0,212,255,0.15);
   }
-  .connection-item:last-child { border-bottom: none; }
-  .connection-item:hover .conn-name { color: var(--accent); }
-  .conn-name { font-size: 12px; color: var(--text2); }
-  .conn-strength { font-size: 10px; padding: 2px 7px; border-radius: 3px; }
-  .conn-strength.s0 { background: rgba(255,59,92,0.1); color: var(--weak); border: 1px solid rgba(255,59,92,0.2); }
-  .conn-strength.s1 { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
-  .conn-strength.s2 { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
-
-  /* GRAPH */
-  .graph-container {
-    width: 100%; height: calc(100vh - 130px);
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; overflow: hidden; position: relative;
+  .due-tag.new-tag { background: var(--surface2); color: var(--text3); border-color: var(--border2); }
+  .due-tag.due-now { background: rgba(255,59,92,0.08); color: var(--weak); border-color: rgba(255,59,92,0.2); }
+  .item-card-answer {
+    display: none; padding: 14px 16px; font-size: 12px; color: var(--text2);
+    line-height: 1.8; border-top: 1px solid var(--border); white-space: pre-wrap;
+    background: var(--surface2);
   }
-  #graphCanvas { width: 100%; height: 100%; display: block; }
-  .graph-legend {
-    position: absolute; bottom: 16px; right: 16px;
-    background: rgba(17,19,24,0.92); border: 1px solid var(--border);
-    border-radius: 6px; padding: 12px; font-size: 11px; color: var(--text3);
+  .item-card.open .item-card-answer { display: block; }
+  .item-tag-label {
+    font-size: 9px; color: var(--text3); background: var(--surface2);
+    padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border2);
   }
-  .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .legend-item:last-child { margin-bottom: 0; }
-  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .legend-line { width: 20px; height: 2px; flex-shrink: 0; }
 
   /* REVIEW */
   .review-container { max-width: 680px; margin: 0 auto; }
-  .review-progress { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
-  .progress-bar { flex: 1; height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; }
+  .review-progress { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .progress-bar { flex: 1; height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s; }
   .progress-text { font-size: 11px; color: var(--text3); white-space: nowrap; }
 
   .review-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  .review-card-top { padding: 24px 28px 20px; border-bottom: 1px solid var(--border); }
-  .review-type { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
-  .review-type.t-concept { color: var(--accent); }
-  .review-type.t-edge { color: var(--accent2); }
-  .review-prompt { font-family: var(--sans); font-size: 20px; font-weight: 700; line-height: 1.4; }
-  .review-context { font-size: 11px; color: var(--text3); margin-top: 8px; }
-
-  .review-card-body { padding: 24px 28px; }
-  .review-textarea {
-    width: 100%; background: var(--bg); border: 1px solid var(--border2);
-    border-radius: 6px; padding: 16px; font-family: var(--mono); font-size: 13px;
-    color: var(--text); line-height: 1.7; resize: vertical; min-height: 160px;
-    outline: none; transition: border-color 0.2s;
+  .review-card-top { padding: 22px 24px 20px; border-bottom: 1px solid var(--border); }
+  .review-type {
+    display: inline-block; font-size: 9px; padding: 3px 10px; border-radius: 4px;
+    letter-spacing: 1.5px; margin-bottom: 14px; border: 1px solid;
   }
-  .review-textarea:focus { border-color: var(--accent); }
-  .review-textarea::placeholder { color: var(--text3); }
+  .review-type.t-atomic        { background: rgba(0,212,255,0.1);  color: var(--accent);  border-color: rgba(0,212,255,0.2); }
+  .review-type.t-process       { background: rgba(245,158,11,0.1); color: var(--warn);    border-color: rgba(245,158,11,0.2); }
+  .review-type.t-problem       { background: rgba(255,59,92,0.1);  color: var(--weak);    border-color: rgba(255,59,92,0.2); }
+  .review-type.t-reconstruction{ background: rgba(123,97,255,0.1); color: var(--accent2); border-color: rgba(123,97,255,0.2); }
 
-  .review-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .review-prompt { font-family: var(--sans); font-size: 20px; font-weight: 700; line-height: 1.4; margin-bottom: 8px; }
+  .review-context { font-size: 11px; color: var(--text3); }
+
+  .review-card-body { padding: 20px 24px; }
+  .review-textarea {
+    width: 100%; min-height: 120px; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: var(--mono); font-size: 12px;
+    padding: 14px; resize: vertical; outline: none; line-height: 1.7;
+    transition: border-color 0.2s;
+  }
+  .review-textarea:focus { border-color: var(--border2); }
+  .review-actions { display: flex; gap: 10px; margin-top: 12px; }
   .btn-reveal {
-    flex: 1; padding: 12px; border-radius: 6px;
-    border: 1px solid var(--border2); background: var(--surface2);
-    color: var(--text); font-family: var(--mono); font-size: 12px; cursor: pointer; transition: all 0.2s;
+    padding: 9px 18px; border-radius: 6px; border: 1px solid var(--border2);
+    background: var(--surface2); color: var(--text2); font-family: var(--mono);
+    font-size: 11px; cursor: pointer; transition: all 0.2s;
   }
   .btn-reveal:hover { border-color: var(--accent); color: var(--accent); }
   .btn-skip {
-    padding: 12px 18px; border-radius: 6px;
-    border: 1px solid var(--border2); background: transparent;
-    color: var(--text3); font-family: var(--mono); font-size: 12px; cursor: pointer; transition: all 0.2s;
+    padding: 9px 14px; border-radius: 6px; border: 1px solid var(--border);
+    background: none; color: var(--text3); font-family: var(--mono);
+    font-size: 11px; cursor: pointer; transition: all 0.2s;
   }
-  .btn-skip:hover { color: var(--text2); border-color: var(--text3); }
+  .btn-skip:hover { color: var(--text2); border-color: var(--border2); }
 
   .grade-section { display: none; margin-top: 16px; }
   .grade-section.visible { display: block; }
   .reference-answer {
-    background: var(--bg); border: 1px solid var(--border);
-    border-left: 3px solid var(--accent); border-radius: 0 6px 6px 0;
-    padding: 16px; font-size: 12px; line-height: 1.8;
-    color: var(--text2); margin-bottom: 16px; white-space: pre-wrap;
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; font-size: 12px; color: var(--text2); line-height: 1.8;
+    white-space: pre-wrap; margin-bottom: 16px;
   }
-  .grade-label-top { font-size: 11px; color: var(--text3); margin-bottom: 10px; }
+  .grade-label-top { font-size: 10px; color: var(--text3); margin-bottom: 10px; letter-spacing: 1px; text-transform: uppercase; }
   .grade-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .grade-btn {
-    padding: 10px 6px; border-radius: 6px; border: 1px solid var(--border2);
-    background: transparent; font-family: var(--mono); font-size: 11px;
-    cursor: pointer; transition: all 0.2s; text-align: center;
+    padding: 10px 8px; border-radius: 8px; border: 1px solid var(--border2);
+    background: var(--surface2); color: var(--text2); font-family: var(--mono);
+    font-size: 11px; cursor: pointer; transition: all 0.2s; text-align: center;
   }
-  .grade-btn .gl { display: block; font-weight: 500; }
-  .grade-btn .gd { font-size: 9px; color: var(--text3); margin-top: 2px; display: block; }
-  .grade-btn:nth-child(1) { color: var(--weak); border-color: rgba(255,59,92,0.3); }
-  .grade-btn:nth-child(1):hover { background: rgba(255,59,92,0.1); }
-  .grade-btn:nth-child(2) { color: #f59e0b; border-color: rgba(245,158,11,0.3); }
-  .grade-btn:nth-child(2):hover { background: rgba(245,158,11,0.1); }
-  .grade-btn:nth-child(3) { color: #10b981; border-color: rgba(16,185,129,0.3); }
-  .grade-btn:nth-child(3):hover { background: rgba(16,185,129,0.1); }
-  .grade-btn:nth-child(4) { color: var(--accent); border-color: rgba(0,212,255,0.3); }
-  .grade-btn:nth-child(4):hover { background: rgba(0,212,255,0.1); }
+  .grade-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.05); }
+  .grade-btn .gl { display: block; font-weight: 700; margin-bottom: 3px; }
+  .grade-btn .gd { display: block; font-size: 9px; color: var(--text3); }
 
-  .review-done { text-align: center; padding: 60px 20px; display: none; }
+  .review-done { display: none; text-align: center; padding: 40px 20px; }
   .review-done.visible { display: block; }
-  .done-icon { font-size: 48px; margin-bottom: 16px; }
-  .done-title { font-family: var(--sans); font-size: 24px; font-weight: 800; margin-bottom: 8px; }
-  .done-sub { font-size: 13px; color: var(--text3); line-height: 1.8; }
-
-  /* MODALS */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(4px); z-index: 500;
-    display: none; align-items: center; justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface); border: 1px solid var(--border2);
-    border-radius: 12px; padding: 28px; width: 520px;
-    max-width: 90vw; max-height: 85vh; overflow-y: auto;
-  }
-  .modal-title {
-    font-family: var(--sans); font-size: 18px; font-weight: 700;
-    margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;
-  }
-  .modal-close { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 18px; }
-  .modal-close:hover { color: var(--text); }
-
-  .field { margin-bottom: 16px; }
-  .field label { display: block; font-size: 11px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
-  .field input, .field textarea, .field select {
-    width: 100%; background: var(--bg); border: 1px solid var(--border2);
-    border-radius: 6px; padding: 10px 12px; font-family: var(--mono);
-    font-size: 13px; color: var(--text); outline: none; transition: border-color 0.2s;
-  }
-  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
-  .field select option { background: var(--surface); }
-  .field textarea { resize: vertical; min-height: 100px; line-height: 1.7; }
-
-  .kp-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-  .kp-row input { flex: 1; }
-  .kp-remove { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 16px; padding: 0 4px; }
-  .kp-remove:hover { color: var(--weak); }
-  .add-kp-btn {
-    background: none; border: 1px dashed var(--border2); border-radius: 4px;
-    color: var(--text3); font-family: var(--mono); font-size: 11px;
-    padding: 6px 12px; cursor: pointer; transition: all 0.2s; width: 100%;
-  }
-  .add-kp-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .modal-footer { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
-  .btn-cancel {
-    padding: 10px 20px; border-radius: 6px; border: 1px solid var(--border2);
-    background: transparent; color: var(--text2); font-family: var(--mono); font-size: 12px; cursor: pointer;
-  }
-  .btn-save {
-    padding: 10px 20px; border-radius: 6px; border: 1px solid var(--accent);
-    background: rgba(0,212,255,0.1); color: var(--accent); font-family: var(--mono); font-size: 12px; cursor: pointer;
-  }
-  .btn-save:hover { background: rgba(0,212,255,0.2); }
-  .btn-edit-concept {
-    padding: 8px 14px; border-radius: 6px; border: 1px solid var(--border2);
-    background: transparent; color: var(--text2); font-family: var(--mono); font-size: 11px; cursor: pointer;
-  }
-  .btn-edit-concept:hover { border-color: var(--text2); color: var(--text); }
-
-  .hint { font-size: 11px; color: var(--text3); line-height: 1.7; margin-top: -8px; margin-bottom: 12px; }
-
-  .del-btn {
-    background: none; border: none; color: transparent;
-    font-size: 14px; cursor: pointer; padding: 0 2px;
-    line-height: 1; transition: color 0.15s; flex-shrink: 0;
-  }
-  .topic-header:hover .del-btn,
-  .subtopic-item:hover .del-btn { color: var(--text3); }
-  .del-btn:hover { color: var(--weak) !important; }
-  .del-btn-sub { font-size: 12px; margin-left: auto; }
-
-  .topic-review-btn {
-    background: none; border: none; color: transparent;
-    font-size: 13px; cursor: pointer; padding: 0 3px;
-    line-height: 1; transition: color 0.15s; flex-shrink: 0;
-  }
-  .topic-header:hover .topic-review-btn { color: var(--text3); }
-  .topic-review-btn:hover { color: var(--accent) !important; }
-
-  /* NEEDS WORK PAGE */
-  .needs-work-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; overflow: hidden; margin-bottom: 28px;
-  }
-  .needs-work-box-header {
-    padding: 14px 18px; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .needs-work-box-title {
-    font-family: var(--sans); font-size: 13px; font-weight: 700;
-    display: flex; align-items: center; gap: 10px;
-  }
-  .needs-work-box-title .nw-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .needs-work-box-desc { font-size: 11px; color: var(--text3); }
-  .needs-work-box-body { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 8px; }
-
-  .weak-concept-card {
-    background: var(--bg); border: 1px solid var(--border);
-    border-radius: 8px; padding: 14px 14px 14px 18px; cursor: pointer; transition: all 0.2s;
-    position: relative; overflow: hidden;
-  }
-  .weak-concept-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px; }
-  .weak-concept-card.severity-high::before { background: var(--weak); }
-  .weak-concept-card.severity-mid::before { background: #f59e0b; }
-  .weak-concept-card:hover { border-color: var(--border2); transform: translateY(-1px); }
-  .wc-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
-  .wc-topic { font-size: 10px; color: var(--text3); margin-bottom: 10px; }
-  .wc-signals { display: flex; gap: 6px; flex-wrap: wrap; }
-  .wc-signal {
-    font-size: 9px; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 3px;
-    background: var(--surface2); color: var(--text3); border: 1px solid var(--border2);
-  }
-  .wc-signal.bad { background: rgba(255,59,92,0.08); color: var(--weak); border-color: rgba(255,59,92,0.2); }
-  .wc-signal.warn { background: rgba(245,158,11,0.08); color: #f59e0b; border-color: rgba(245,158,11,0.2); }
-
-  .empty-box { padding: 28px; text-align: center; color: var(--text3); font-size: 12px; line-height: 1.7; }
+  .done-icon { font-size: 32px; margin-bottom: 12px; }
+  .done-title { font-family: var(--sans); font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+  .done-sub { font-size: 12px; color: var(--text3); line-height: 1.9; white-space: pre-wrap; }
 
   /* STATS */
-  .stats-highlight-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px;
-  }
-  .stats-highlight-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; overflow: hidden;
-  }
+  .stats-highlight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+  .stats-highlight-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
   .stats-highlight-box-header {
     padding: 12px 16px; border-bottom: 1px solid var(--border);
     font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3);
     display: flex; align-items: center; gap: 8px;
   }
-  .stats-highlight-box-header .nw-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
   .stats-highlight-item {
     display: flex; align-items: center; justify-content: space-between;
     padding: 10px 16px; border-bottom: 1px solid var(--border);
@@ -471,129 +321,111 @@
   }
   .stats-highlight-item:last-child { border-bottom: none; }
   .stats-highlight-item:hover { background: var(--surface2); }
-  .shi-left { display: flex; flex-direction: column; gap: 2px; }
   .shi-name { font-size: 12px; color: var(--text); }
-  .shi-topic { font-size: 10px; color: var(--text3); }
-  .shi-right { display: flex; align-items: center; gap: 10px; }
-  .shi-count {
-    font-family: var(--sans); font-size: 16px; font-weight: 700;
-    color: var(--accent); min-width: 28px; text-align: right;
-  }
+  .shi-topic { font-size: 10px; color: var(--text3); margin-top: 2px; }
+  .shi-count { font-family: var(--sans); font-size: 16px; font-weight: 700; color: var(--accent); min-width: 28px; text-align: right; }
   .shi-count.neglected { color: var(--weak); }
 
-  .topic-stat-block {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; overflow: hidden; margin-bottom: 12px;
-  }
-  .topic-stat-header {
-    padding: 14px 18px; display: flex; align-items: center;
-    justify-content: space-between; cursor: pointer; transition: background 0.15s;
-  }
+  .topic-stat-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 12px; }
+  .topic-stat-header { padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: background 0.15s; }
   .topic-stat-header:hover { background: var(--surface2); }
-  .topic-stat-name {
-    font-family: var(--sans); font-size: 14px; font-weight: 700;
-  }
-  .topic-stat-summary {
-    display: flex; gap: 16px; font-size: 11px; color: var(--text3);
-  }
-  .topic-stat-summary span { display: flex; align-items: center; gap: 5px; }
+  .topic-stat-name { font-family: var(--sans); font-size: 14px; font-weight: 700; }
+  .topic-stat-summary { display: flex; gap: 16px; font-size: 11px; color: var(--text3); }
   .topic-stat-body { display: none; border-top: 1px solid var(--border); }
   .topic-stat-block.open .topic-stat-body { display: block; }
   .topic-stat-chevron { font-size: 10px; color: var(--text3); transition: transform 0.2s; }
   .topic-stat-block.open .topic-stat-chevron { transform: rotate(90deg); }
 
-  .concept-stat-row {
-    display: flex; align-items: center; gap: 12px;
+  .type-stat-row {
+    display: flex; align-items: center; justify-content: space-between;
     padding: 11px 18px; border-bottom: 1px solid var(--border);
-    cursor: pointer; transition: background 0.15s;
   }
-  .concept-stat-row:last-child { border-bottom: none; }
-  .concept-stat-row:hover { background: var(--surface2); }
-  .csr-name { font-size: 12px; color: var(--text); flex: 1; min-width: 0; }
-  .csr-reviews {
-    font-size: 11px; color: var(--text3); white-space: nowrap;
-    min-width: 60px; text-align: right;
-  }
-  .ease-bar { width: 80px; height: 5px; background: var(--surface2); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
-  .ease-fill { height: 100%; border-radius: 3px; }
-  .csr-status {
-    font-size: 9px; padding: 2px 7px; border-radius: 3px;
-    white-space: nowrap; min-width: 62px; text-align: center;
-  }
-  .csr-status.struggling { background: rgba(255,59,92,0.1); color: var(--weak); border: 1px solid rgba(255,59,92,0.2); }
-  .csr-status.learning { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
-  .csr-status.strong { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
-  .csr-status.new { background: var(--surface2); color: var(--text3); border: 1px solid var(--border2); }
+  .type-stat-row:last-child { border-bottom: none; }
+  .type-stat-label { font-size: 12px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .type-stat-nums { display: flex; gap: 20px; font-size: 11px; color: var(--text3); }
+  .type-stat-nums span { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+  .type-stat-nums strong { font-size: 14px; font-family: var(--sans); font-weight: 700; color: var(--text); }
 
-  @media (max-width: 768px) {
-    .stats-highlight-grid { grid-template-columns: 1fr; }
-    .ease-bar { width: 50px; }
-    .csr-status { display: none; }
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    z-index: 500; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
   }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 12px; padding: 24px; width: 100%; max-width: 520px;
+    max-height: 85vh; overflow-y: auto; margin: 20px;
+  }
+  .modal-title {
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: var(--sans); font-size: 15px; font-weight: 700; margin-bottom: 20px;
+  }
+  .modal-close { background: none; border: none; color: var(--text3); font-size: 20px; cursor: pointer; }
+  .modal-close:hover { color: var(--text); }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 10px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .field input, .field textarea, .field select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border2);
+    border-radius: 6px; color: var(--text); font-family: var(--mono); font-size: 12px;
+    padding: 10px 12px; outline: none; transition: border-color 0.2s;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--accent); }
+  .field textarea { min-height: 100px; resize: vertical; line-height: 1.7; }
+  .field select option { background: var(--surface); }
+  .modal-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+  .btn-cancel {
+    padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border2);
+    background: none; color: var(--text3); font-family: var(--mono); font-size: 11px; cursor: pointer;
+  }
+  .btn-save {
+    padding: 8px 20px; border-radius: 6px; border: 1px solid var(--accent);
+    background: rgba(0,212,255,0.1); color: var(--accent); font-family: var(--mono); font-size: 11px; cursor: pointer;
+  }
+  .hint { font-size: 11px; color: var(--text3); line-height: 1.7; margin-top: -8px; margin-bottom: 12px; }
 
   /* MOBILE */
   .hamburger {
-    display: none; background: none; border: none;
-    color: var(--text2); font-size: 20px; cursor: pointer;
-    padding: 4px 8px; margin-right: 8px; line-height: 1;
+    display: none; background: none; border: none; color: var(--text2);
+    font-size: 20px; cursor: pointer; padding: 4px 8px; margin-right: 4px; line-height: 1;
   }
   .sidebar-backdrop {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.6); z-index: 200;
-    backdrop-filter: blur(2px);
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; backdrop-filter: blur(2px);
   }
   .sidebar-backdrop.visible { display: block; }
 
+  .empty-state { padding: 40px 20px; text-align: center; color: var(--text3); font-size: 12px; line-height: 1.9; }
+  .empty-state-icon { font-size: 28px; margin-bottom: 12px; }
+
   @media (max-width: 768px) {
     .hamburger { display: block; }
-
     .sidebar {
-      position: fixed; left: 0; top: 0; bottom: 0;
-      z-index: 300; transform: translateX(-100%);
-      transition: transform 0.25s ease; width: 280px;
+      position: fixed; left: 0; top: 0; bottom: 0; z-index: 300;
+      transform: translateX(-100%); transition: transform 0.25s ease;
       box-shadow: 4px 0 24px rgba(0,0,0,0.4);
     }
     .sidebar.open { transform: translateX(0); }
-
     .topbar { padding: 12px 16px; }
-    .topbar-title { font-size: 14px; }
-    .topbar-left { display: flex; align-items: center; }
-
     .content { padding: 20px 16px; }
-
     .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
     .stat-value { font-size: 22px; }
-
-    .concept-body { grid-template-columns: 1fr; }
-    .connections-panel { margin-top: 16px; }
-
-    .grade-buttons { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-
-    .review-prompt { font-size: 16px; }
-    .review-card-top { padding: 18px 20px 16px; }
-    .review-card-body { padding: 18px 20px; }
-
-    .needs-work-box-header { flex-direction: column; align-items: flex-start; gap: 4px; }
-    .needs-work-box-body { grid-template-columns: 1fr; }
-
-    .edges-grid { grid-template-columns: 1fr; }
-
-    .btn-review { font-size: 11px; padding: 7px 12px; }
-    .queue-badge { font-size: 10px; padding: 3px 8px; }
-
-    .graph-container { height: calc(100vh - 110px); }
-
-    .modal { padding: 20px; }
+    .grade-buttons { grid-template-columns: repeat(2, 1fr); }
     .grade-btn .gd { display: none; }
+    .review-prompt { font-size: 16px; }
+    .review-card-top { padding: 16px 18px; }
+    .review-card-body { padding: 16px 18px; }
+    .stats-highlight-grid { grid-template-columns: 1fr; }
+    .modal { padding: 20px; }
   }
 </style>
 </head>
 <body>
 <div class="app">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="logo">
       <div class="logo-text">Net<span>Mind</span></div>
-      <div class="logo-sub">Knowledge Graph</div>
+      <div class="logo-sub">Knowledge System</div>
     </div>
     <nav class="nav">
       <button class="nav-btn active" onclick="showView('dashboard')" id="nav-dashboard">
@@ -602,24 +434,14 @@
       <button class="nav-btn" onclick="showView('stats')" id="nav-stats">
         <span class="icon">◎</span> Stats
       </button>
-      <button class="nav-btn" onclick="showView('edges')" id="nav-edges">
-        <span class="icon">◌</span> Needs Work
-      </button>
-      <button class="nav-btn" onclick="showView('graph')" id="nav-graph">
-        <span class="icon">◈</span> Graph View
-      </button>
     </nav>
-    <div class="topics-section" id="topicsList">
-      <div class="section-label">Topics</div>
-    </div>
+    <div class="topics-section" id="topicsList"></div>
     <div class="sidebar-footer">
-      <button class="add-btn" onclick="openAddModal('topic')">
-        <span>+</span> Add Topic
-      </button>
+      <button class="add-btn" onclick="openAddTopicModal()"><span>+</span> Add Topic</button>
+      <button class="add-btn" style="margin-top:6px;border-color:var(--border);color:var(--text3);" onclick="resetAllStats()">↺ Reset Stats</button>
     </div>
   </aside>
 
-  <!-- Mobile backdrop -->
   <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
 
   <main class="main">
@@ -644,77 +466,21 @@
         <div id="dashQueue"></div>
       </div>
 
+      <!-- ITEM LIST VIEW -->
+      <div class="view" id="view-items">
+        <div class="item-list-header">
+          <div class="item-list-title">
+            <span id="itemListTitle">Items</span>
+            <span class="type-badge" id="itemListBadge"></span>
+          </div>
+          <button class="btn-review" style="font-size:11px;" id="btnAddItem" onclick="openAddItemModal()">+ Add</button>
+        </div>
+        <div id="itemListContainer"></div>
+      </div>
+
       <!-- STATS -->
       <div class="view" id="view-stats">
         <div id="statsContent"></div>
-      </div>
-
-      <!-- NEEDS WORK -->
-      <div class="view" id="view-edges">
-        <!-- Weak Concepts box -->
-        <div class="needs-work-box">
-          <div class="needs-work-box-header">
-            <div class="needs-work-box-title">
-              <div class="nw-dot" style="background:var(--weak)"></div>
-              Weak Concepts
-            </div>
-            <div class="needs-work-box-desc">Low ease · reviewed poorly · neglected</div>
-          </div>
-          <div class="needs-work-box-body" id="weakConceptsGrid"></div>
-        </div>
-        <!-- Weak Edges box -->
-        <div class="needs-work-box">
-          <div class="needs-work-box-header">
-            <div class="needs-work-box-title">
-              <div class="nw-dot" style="background:var(--accent2)"></div>
-              Weak Edges
-            </div>
-            <div class="needs-work-box-desc">Connections you can't fully explain yet · click to review</div>
-          </div>
-          <div class="needs-work-box-body" id="edgesGrid"></div>
-        </div>
-      </div>
-
-      <!-- CONCEPT VIEW -->
-      <div class="view" id="view-concept">
-        <div class="concept-header">
-          <div class="concept-breadcrumb" id="conceptBreadcrumb"></div>
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;">
-            <div class="concept-title" id="conceptTitle"></div>
-            <button class="btn-edit-concept" id="btnEditConcept">Edit</button>
-          </div>
-          <div class="concept-meta" id="conceptMeta"></div>
-        </div>
-        <div class="concept-body">
-          <div>
-            <div class="explanation-label">Feynman Explanation</div>
-            <div class="explanation-box" id="explanationBox"></div>
-            <div class="key-points" id="keyPointsList"></div>
-          </div>
-          <div>
-            <div class="connections-panel">
-              <div class="connections-title">Connections</div>
-              <div id="connectionsList"></div>
-              <button class="add-btn" style="margin-top:12px;" onclick="openAddConnectionModal()">+ Link concept</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- GRAPH VIEW -->
-      <div class="view" id="view-graph">
-        <div class="graph-container">
-          <canvas id="graphCanvas"></canvas>
-          <div class="graph-legend">
-            <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;color:var(--text3);">Edge Strength</div>
-            <div class="legend-item"><div class="legend-line" style="background:var(--weak)"></div> Weak</div>
-            <div class="legend-item"><div class="legend-line" style="background:#f59e0b"></div> Medium</div>
-            <div class="legend-item"><div class="legend-line" style="background:var(--accent)"></div> Strong</div>
-            <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;margin-top:10px;margin-bottom:8px;color:var(--text3);">Node Size</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--text3);width:6px;height:6px;"></div> Unreviewed</div>
-            <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div> Reviewed</div>
-          </div>
-        </div>
       </div>
 
       <!-- REVIEW -->
@@ -731,19 +497,19 @@
               <div class="review-context" id="reviewContext"></div>
             </div>
             <div class="review-card-body">
-              <textarea class="review-textarea" id="reviewTextarea" placeholder="Write your explanation here..."></textarea>
+              <textarea class="review-textarea" id="reviewTextarea" placeholder="Write your answer here..."></textarea>
               <div class="review-actions">
                 <button class="btn-reveal" onclick="revealAnswer()">Reveal Reference →</button>
-                <button class="btn-skip" onclick="skipCard()" title="Skip — this card moves to end of queue, priority unchanged">Skip ↷</button>
+                <button class="btn-skip" onclick="skipCard()">Skip ↷</button>
               </div>
               <div class="grade-section" id="gradeSection">
                 <div class="reference-answer" id="referenceAnswer"></div>
                 <div class="grade-label-top">How well did you cover it?</div>
                 <div class="grade-buttons">
-                  <button class="grade-btn" onclick="gradeCard(0)"><span class="gl">Again</span><span class="gd">Missed key points</span></button>
-                  <button class="grade-btn" onclick="gradeCard(1)"><span class="gl">Hard</span><span class="gd">Partial coverage</span></button>
-                  <button class="grade-btn" onclick="gradeCard(2)"><span class="gl">Good</span><span class="gd">Mostly correct</span></button>
-                  <button class="grade-btn" onclick="gradeCard(3)"><span class="gl">Easy</span><span class="gd">Complete + connected</span></button>
+                  <button class="grade-btn" onclick="gradeCard(0)"><span class="gl">Again</span><span class="gd">Missed it</span></button>
+                  <button class="grade-btn" onclick="gradeCard(1)"><span class="gl">Hard</span><span class="gd">Partial</span></button>
+                  <button class="grade-btn" onclick="gradeCard(2)"><span class="gl">Good</span><span class="gd">Mostly right</span></button>
+                  <button class="grade-btn" onclick="gradeCard(3)"><span class="gl">Easy</span><span class="gd">Nailed it</span></button>
                 </div>
               </div>
             </div>
@@ -761,15 +527,15 @@
 </div>
 
 <!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
   <div class="modal">
     <div class="modal-title">
       <span id="modalTitle"></span>
-      <button class="modal-close" onclick="closeModalDirect()">×</button>
+      <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div id="modalBody"></div>
     <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModalDirect()">Cancel</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-save" id="modalSaveBtn">Save</button>
     </div>
   </div>
@@ -779,163 +545,121 @@
 // ============================================================
 // SUPABASE CONFIG — paste your keys here
 // ============================================================
-const SUPABASE_URL = 'https://rmcghljmwtzbykyqeoim.supabase.co/';      // e.g. https://xxxx.supabase.co
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtY2dobGptd3R6YnlreXFlb2ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3NzQ3OTEsImV4cCI6MjA4NzM1MDc5MX0.2r1loObmpbrDSpzBaUK-H-djQmODyK0WbfxarJPn6gc';  // the long anon/public key
+const SUPABASE_URL = 'https://rmcghljmwtzbykyqeoim.supabase.co/';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJtY2dobGptd3R6YnlreXFlb2ltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3NzQ3OTEsImV4cCI6MjA4NzM1MDc5MX0.2r1loObmpbrDSpzBaUK-H-djQmODyK0WbfxarJPn6gc';
 
-const headers = {
-  'Content-Type': 'application/json',
-  'apikey': SUPABASE_KEY,
-  'Authorization': `Bearer ${SUPABASE_KEY}`
+const SB = {
+  headers: {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`
+  },
+  async get(table, params = '') {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, { headers: this.headers });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async upsert(table, row) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: { ...this.headers, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify(row)
+    });
+    if (!r.ok) throw new Error(await r.text());
+  },
+  async delete(table, id) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, { method: 'DELETE', headers: this.headers });
+    if (!r.ok) throw new Error(await r.text());
+  }
 };
-
-async function dbGet(table, params = '') {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, { headers });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-}
-
-async function dbUpsert(table, row) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
-    method: 'POST',
-    headers: { ...headers, 'Prefer': 'resolution=merge-duplicates' },
-    body: JSON.stringify(row)
-  });
-  if (!res.ok) throw new Error(await res.text());
-}
-
-async function dbDelete(table, id) {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?id=eq.${id}`, {
-    method: 'DELETE', headers
-  });
-  if (!res.ok) throw new Error(await res.text());
-}
 
 // ============================================================
 // DATA MODEL
 // ============================================================
-// Edge strength: 0=weak, 1=medium, 2=strong
-// review.easeScore: higher = concept is well-known, slows priority growth
-// review.lastSession: which session it was last reviewed (for gap calc)
-// review.sessions: total times reviewed
-
-let data = { sessionCount: 0, streak: 0, lastSessionDate: '', topics: [] };
+let data = {
+  sessionCount: 0,
+  lastSessionDate: '',
+  streak: 0,
+  topics: [],  // [{ id, name }]
+  items: []    // [{ id, topic_id, type, question, answer, tags, review }]
+};
 
 // ============================================================
-// PERSISTENCE — save/load from Supabase
+// PERSISTENCE
 // ============================================================
-async function saveSessionCount() {
-  await dbUpsert('topics', { id: '__meta__', name: JSON.stringify({
+async function saveMeta() {
+  await SB.upsert('topics', { id: '__meta__', name: JSON.stringify({
     sessionCount: data.sessionCount,
-    lastSessionDate: data.lastSessionDate || '',
-    streak: data.streak || 0
+    lastSessionDate: data.lastSessionDate,
+    streak: data.streak
   })});
 }
 
 async function saveTopic(topic) {
-  await dbUpsert('topics', { id: topic.id, name: topic.name });
+  await SB.upsert('topics', { id: topic.id, name: topic.name });
 }
 
-async function saveConcept(subtopic, topicId, topicName) {
-  await dbUpsert('concepts', {
-    id: subtopic.id,
-    topic_id: topicId,
-    topic_name: topicName,
-    name: subtopic.name,
-    explanation: subtopic.explanation,
-    key_points: subtopic.keyPoints,
-    connections: subtopic.connections,
-    review: subtopic.review
+async function saveItem(item) {
+  await SB.upsert('items', {
+    id: item.id,
+    topic_id: item.topic_id,
+    type: item.type,
+    question: item.question,
+    answer: item.answer || '',
+    tags: item.tags || [],
+    review: item.review
   });
 }
 
 async function loadFromDB() {
-  showLoadingScreen(true);
+  showLoading(true);
   try {
-    // Load topics
-    const topicRows = await dbGet('topics', 'order=created_at.asc');
+    const [topicRows, itemRows] = await Promise.all([
+      SB.get('topics', 'order=created_at.asc'),
+      SB.get('items', 'order=created_at.asc')
+    ]);
+
     const metaRow = topicRows.find(t => t.id === '__meta__');
     if (metaRow) {
       try {
-        const meta = JSON.parse(metaRow.name);
-        data.sessionCount = meta.sessionCount || 0;
-        data.lastSessionDate = meta.lastSessionDate || '';
-        data.streak = meta.streak || 0;
+        const m = JSON.parse(metaRow.name);
+        data.sessionCount    = m.sessionCount    || 0;
+        data.lastSessionDate = m.lastSessionDate || '';
+        data.streak          = m.streak          || 0;
       } catch(e) {}
     }
-    const realTopics = topicRows.filter(t => t.id !== '__meta__');
 
-    // Load concepts
-    const conceptRows = await dbGet('concepts', 'order=created_at.asc');
+    data.topics = topicRows
+      .filter(t => t.id !== '__meta__')
+      .map(t => ({ id: t.id, name: t.name }));
 
-    // Reconstruct data structure
-    data.topics = realTopics.map(t => ({
-      id: t.id,
-      name: t.name,
-      subtopics: conceptRows
-        .filter(c => c.topic_id === t.id)
-        .map(c => ({
-          id: c.id,
-          name: c.name,
-          explanation: c.explanation || '',
-          keyPoints: c.key_points || [],
-          connections: c.connections || [],
-          review: c.review || { sessions: 0, lastSession: -1, easeScore: 2.5 }
-        }))
+    data.items = itemRows.map(i => ({
+      id: i.id,
+      topic_id: i.topic_id,
+      type: i.type,
+      question: i.question || '',
+      answer: i.answer || '',
+      tags: i.tags || [],
+      review: i.review || { sessions: 0, lastSession: -1, easeScore: 2.5, interval: 1, nextReviewSession: 0 }
     }));
 
-    // If DB is empty, seed with sample data
-    if (data.topics.length === 0) await seedSampleData();
-
   } catch(e) {
-    console.error('Failed to load from Supabase:', e);
-    showError('Could not connect to database. Check your API keys in the HTML file.');
+    console.error(e);
+    showError('Could not connect to database. Check your API keys.');
     return;
   }
-  showLoadingScreen(false);
+  showLoading(false);
   renderSidebar();
   renderDashboard();
 }
 
-async function seedSampleData() {
-  const sampleTopics = [
-    { id: 't1', name: 'TCP/IP' },
-    { id: 't2', name: 'TLS/SSL' }
-  ];
-  const sampleConcepts = [
-    { id: 's1', topic_id: 't1', topic_name: 'TCP/IP', name: 'Three-Way Handshake',
-      explanation: 'The TCP three-way handshake establishes a reliable connection before any data flows.\n\nHost A sends SYN — "I want to connect, here\'s my starting sequence number."\nHost B responds SYN-ACK — acknowledging A and sharing its own sequence number.\nHost A sends ACK — confirming B\'s sequence.\n\nEach step exists because TCP needs to agree on sequence numbers in both directions. The half-open state between SYN-ACK and ACK is exactly what a SYN flood attack exploits.',
-      key_points: ['SYN → SYN-ACK → ACK is the full sequence','Establishes sequence numbers bidirectionally','Half-open state (post SYN-ACK, pre ACK) is the SYN flood attack surface','No equivalent in UDP — UDP is stateless'],
-      connections: [{ id: 's2', strength: 0 }, { id: 's3', strength: 1 }],
-      review: { sessions: 0, lastSession: -1, easeScore: 2.5 } },
-    { id: 's2', topic_id: 't1', topic_name: 'TCP/IP', name: 'SYN Flood Attack',
-      explanation: '',
-      key_points: ['Attacker sends many SYNs, never completes the ACK','Server allocates state for each half-open connection','Connection table fills → legitimate connections dropped','SYN cookies mitigate by encoding state in the SYN-ACK itself'],
-      connections: [{ id: 's1', strength: 0 }],
-      review: { sessions: 0, lastSession: -1, easeScore: 2.5 } },
-    { id: 's3', topic_id: 't1', topic_name: 'TCP/IP', name: 'TCP vs UDP',
-      explanation: '',
-      key_points: ['TCP: reliable, ordered, connection-based, has flow/congestion control','UDP: best-effort, unordered, connectionless, minimal overhead','TCP retransmits lost packets; UDP does not','Use UDP when speed > reliability (DNS, VoIP, streaming, gaming)'],
-      connections: [],
-      review: { sessions: 0, lastSession: -1, easeScore: 2.5 } },
-    { id: 's4', topic_id: 't2', topic_name: 'TLS/SSL', name: 'TLS Handshake',
-      explanation: '',
-      key_points: ['ClientHello + ServerHello negotiate cipher suite and TLS version','Server presents certificate (proves identity via asymmetric crypto)','Key exchange derives a shared session key (asymmetric → symmetric)','All data after handshake encrypted with the symmetric session key'],
-      connections: [{ id: 's1', strength: 1 }],
-      review: { sessions: 0, lastSession: -1, easeScore: 2.5 } }
-  ];
-
-  for (const t of sampleTopics) await dbUpsert('topics', t);
-  for (const c of sampleConcepts) await dbUpsert('concepts', c);
-  await loadFromDB(); // reload after seeding
-}
-
-function showLoadingScreen(visible) {
+function showLoading(visible) {
   let el = document.getElementById('loadingScreen');
   if (!el) {
     el = document.createElement('div');
     el.id = 'loadingScreen';
-    el.style.cssText = `position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2000;font-family:var(--mono);color:var(--text3);font-size:13px;gap:12px;`;
-    el.innerHTML = `<div style="font-family:var(--sans);font-size:20px;font-weight:800;color:var(--text)">Net<span style="color:var(--accent)">Mind</span></div><div id="loadingMsg">Connecting to database...</div>`;
+    el.style.cssText = 'position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:2000;font-family:var(--mono);color:var(--text3);font-size:13px;gap:12px;';
+    el.innerHTML = `<div style="font-family:var(--sans);font-size:22px;font-weight:800;color:var(--text)">Net<span style="color:var(--accent)">Mind</span></div><div id="loadingMsg">Connecting...</div>`;
     document.body.appendChild(el);
   }
   el.style.display = visible ? 'flex' : 'none';
@@ -944,289 +668,148 @@ function showLoadingScreen(visible) {
 function showError(msg) {
   const el = document.getElementById('loadingMsg');
   if (el) { el.textContent = msg; el.style.color = 'var(--weak)'; }
-  showLoadingScreen(true);
-}
-
-// ============================================================
-// PRIORITY ENGINE
-// ============================================================
-function computeConceptPriority(s) {
-  const gap = data.sessionCount - s.review.lastSession;
-  const effectiveGap = s.review.sessions === 0 ? 3 : gap;
-  return (effectiveGap * 1.5) / s.review.easeScore;
-}
-
-function computeEdgePriority(e) {
-  const a = getSubtopic(e.aId);
-  const b = getSubtopic(e.bId);
-  if (!a || !b) return 0;
-  const gapA = data.sessionCount - a.subtopic.review.lastSession;
-  const gapB = data.sessionCount - b.subtopic.review.lastSession;
-  const avgGap = (gapA + gapB) / 2;
-  const strengthMultiplier = (3 - e.strength); // weak=3, medium=2, strong=1
-  return (avgGap * strengthMultiplier) / 1.5;
-}
-
-function buildReviewQueue() {
-  const conceptItems = getAllSubtopics().map(s => ({
-    type: 'concept',
-    id: s.id, name: s.name, topicName: s.topicName,
-    priority: computeConceptPriority(s),
-    sessions: s.review.sessions
-  }));
-
-  const edgeItems = getAllEdges()
-    .filter(e => e.strength < 2)
-    .map(e => ({
-      type: 'edge',
-      aId: e.aId, bId: e.bId,
-      aName: e.aName, bName: e.bName,
-      strength: e.strength,
-      priority: computeEdgePriority(e)
-    }));
-
-  return [...conceptItems, ...edgeItems].sort((a, b) => b.priority - a.priority);
+  showLoading(true);
 }
 
 // ============================================================
 // HELPERS
 // ============================================================
-function getAllSubtopics() {
-  return data.topics.flatMap(t => t.subtopics.map(s => ({ ...s, topicId: t.id, topicName: t.name })));
-}
-
-function getSubtopic(id) {
-  for (const t of data.topics) {
-    const s = t.subtopics.find(s => s.id === id);
-    if (s) return { subtopic: s, topic: t };
-  }
-  return null;
-}
-
-function getAllEdges() {
-  const seen = new Set();
-  const edges = [];
-  data.topics.forEach(t => {
-    t.subtopics.forEach(s => {
-      s.connections.forEach(c => {
-        const key = [s.id, c.id].sort().join(':');
-        if (seen.has(key)) return;
-        seen.add(key);
-        const other = getSubtopic(c.id);
-        edges.push({ aId: s.id, bId: c.id, aName: s.name, bName: other ? other.subtopic.name : '?', strength: c.strength, key });
-      });
-    });
-  });
-  return edges;
-}
-
-function setEdgeStrength(aId, bId, strength) {
-  const ra = getSubtopic(aId);
-  const rb = getSubtopic(bId);
-  if (ra) { const e = ra.subtopic.connections.find(c => c.id === bId); if (e) e.strength = strength; }
-  if (rb) { const e = rb.subtopic.connections.find(c => c.id === aId); if (e) e.strength = strength; }
-}
-
-function strengthLabel(s) { return ['Weak','Medium','Strong'][s] || 'Weak'; }
-function uid() { return 's' + Date.now() + Math.random().toString(36).slice(2,5); }
+function uid()  { return 'i' + Date.now() + Math.random().toString(36).slice(2,5); }
 function tuid() { return 't' + Date.now(); }
 
+function getTopicItems(topicId, type) {
+  return data.items.filter(i => i.topic_id === topicId && i.type === type);
+}
+
+function getTopic(topicId) {
+  return data.topics.find(t => t.id === topicId);
+}
+
+function getItem(itemId) {
+  return data.items.find(i => i.id === itemId);
+}
+
+const TYPE_LABELS = {
+  atomic: 'Atomic',
+  process: 'Process',
+  problem: 'Problem',
+  reconstruction: 'Reconstruction'
+};
+
+const TYPES = ['atomic', 'process', 'problem', 'reconstruction'];
+
+function isDue(item) {
+  if (!item.review || item.review.sessions === 0) return true;
+  return !item.review.nextReviewSession || data.sessionCount >= item.review.nextReviewSession;
+}
+
+function dueCount(topicId, type) {
+  return getTopicItems(topicId, type).filter(isDue).length;
+}
+
+function totalDue() {
+  return data.items.filter(isDue).length;
+}
+
 // ============================================================
-// REVIEW UPDATE LOGIC
+// SM-2 SCHEDULING
 // ============================================================
-function updateConceptAfterReview(id, grade) {
-  const { subtopic: s } = getSubtopic(id);
-  s.review.sessions++;
-  s.review.lastSession = data.sessionCount;
+function nextInterval(currentInterval, ease, grade) {
+  if (grade === 0) return 1;
+  if (grade === 1) return Math.max(1, Math.floor(currentInterval * 1.2));
+  if (grade === 2) return Math.max(1, Math.floor(currentInterval * ease));
+  return Math.max(1, Math.floor(currentInterval * ease * 1.3));
+}
+
+function updateItemReview(item, grade) {
+  if (!item.review) item.review = { sessions: 0, lastSession: -1, easeScore: 2.5, interval: 1, nextReviewSession: 0 };
+  item.review.sessions++;
+  item.review.lastSession = data.sessionCount;
   const delta = [-.4, -.15, 0, +.2][grade];
-  s.review.easeScore = Math.max(1.2, Math.min(4.0, s.review.easeScore + delta));
-
-  // Degrade connected edges on poor performance
-  if (grade <= 1) {
-    s.connections.forEach(c => {
-      if (c.strength > 0) {
-        c.strength = Math.max(0, c.strength - 1);
-        const other = getSubtopic(c.id);
-        if (other) {
-          const mirror = other.subtopic.connections.find(x => x.id === id);
-          if (mirror && mirror.strength > 0) mirror.strength = Math.max(0, mirror.strength - 1);
-        }
-      }
-    });
-  }
-}
-
-function updateEdgeAfterReview(aId, bId, grade) {
-  // Again/Hard = stays weak; Good = medium; Easy = strong
-  const newStrength = grade <= 1 ? 0 : grade === 2 ? 1 : 2;
-  setEdgeStrength(aId, bId, newStrength);
-  // Bump lastSession for both nodes
-  const ra = getSubtopic(aId); const rb = getSubtopic(bId);
-  if (ra) ra.subtopic.review.lastSession = data.sessionCount;
-  if (rb) rb.subtopic.review.lastSession = data.sessionCount;
+  item.review.easeScore = Math.max(1.2, Math.min(4.0, item.review.easeScore + delta));
+  const ci = item.review.interval || 1;
+  item.review.interval = nextInterval(ci, item.review.easeScore, grade);
+  item.review.nextReviewSession = data.sessionCount + item.review.interval;
 }
 
 // ============================================================
-// RENDERING
+// SESSION / STREAK
+// ============================================================
+function bumpSession() {
+  const today = new Date().toISOString().split('T')[0];
+  if (data.lastSessionDate === today) return;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  data.streak = data.lastSessionDate === yesterday ? data.streak + 1
+    : data.lastSessionDate === '' ? 1 : 1;
+  data.sessionCount++;
+  data.lastSessionDate = today;
+  saveMeta();
+}
+
+// ============================================================
+// PRIORITY
+// ============================================================
+function computePriority(item) {
+  const gap = data.sessionCount - (item.review?.lastSession ?? -1);
+  const effectiveGap = !item.review || item.review.sessions === 0 ? 3 : gap;
+  return (effectiveGap * 1.5) / (item.review?.easeScore ?? 2.5);
+}
+
+// ============================================================
+// REVIEW QUEUE
+// ============================================================
+function buildReviewQueue(topicId = null, type = null, includeAll = false) {
+  let pool = data.items;
+  if (topicId) pool = pool.filter(i => i.topic_id === topicId);
+  if (type)    pool = pool.filter(i => i.type === type);
+  if (!includeAll) pool = pool.filter(isDue);
+  return [...pool]
+    .map(i => ({ ...i, priority: computePriority(i) }))
+    .sort((a, b) => b.priority - a.priority);
+}
+
+// ============================================================
+// SIDEBAR
 // ============================================================
 function renderSidebar() {
   const el = document.getElementById('topicsList');
   el.innerHTML = '<div class="section-label">Topics</div>';
+
   data.topics.forEach(topic => {
-    const hasWeak = topic.subtopics.some(s => s.connections.some(c => c.strength === 0));
-    const anyReviewed = topic.subtopics.some(s => s.review.sessions > 0);
+    const hasItems = data.items.some(i => i.topic_id === topic.id);
     const div = document.createElement('div');
     div.className = 'topic-item';
-    div.id = 'topic-item-' + topic.id;
+    div.id = 'titem-' + topic.id;
+
+    const folders = TYPES.map(type => {
+      const count = getTopicItems(topic.id, type).length;
+      const due   = dueCount(topic.id, type);
+      return `<div class="folder-row" onclick="showItemList('${topic.id}','${type}')">
+        <div class="folder-dot" style="background:${typeColor(type)}"></div>
+        <span>${TYPE_LABELS[type]}</span>
+        <span class="folder-count ${due > 0 ? 'has-due' : ''}">${due > 0 ? due + ' due' : count}</span>
+      </div>`;
+    }).join('');
+
     div.innerHTML = `
       <div class="topic-header" onclick="toggleTopic('${topic.id}')">
-        <div class="topic-dot ${hasWeak ? 'has-weak' : anyReviewed ? 'reviewed' : ''}"></div>
+        <div class="topic-dot ${hasItems ? 'has-items' : ''}"></div>
         <span style="flex:1">${topic.name}</span>
-        <button class="topic-review-btn" onclick="event.stopPropagation();startTopicReview('${topic.id}')" title="Review this topic">⟳</button>
-        <button class="del-btn" onclick="event.stopPropagation();deleteTopic('${topic.id}')" title="Delete topic">×</button>
+        <button class="topic-review-btn" onclick="event.stopPropagation();startReview('${topic.id}')" title="Review this topic">⟳</button>
+        <button class="del-btn" onclick="event.stopPropagation();deleteTopic('${topic.id}')">×</button>
         <span class="topic-chevron">▶</span>
       </div>
-      <div class="subtopics" id="sub-${topic.id}">
-        ${topic.subtopics.map(s => `
-          <div class="subtopic-item" id="subtopic-${s.id}">
-            <div class="subtopic-dot" onclick="showConcept('${s.id}')"></div>
-            <span style="flex:1" onclick="showConcept('${s.id}')">${s.name}</span>
-            <button class="del-btn del-btn-sub" onclick="event.stopPropagation();deleteConcept('${s.id}')" title="Delete concept">×</button>
-          </div>`).join('')}
-        <div class="subtopic-item" style="color:var(--text3);font-size:10px;" onclick="openAddModal('subtopic','${topic.id}')">
-          + Add subtopic
-        </div>
-      </div>`;
+      <div class="topic-folders" id="folders-${topic.id}">${folders}</div>`;
     el.appendChild(div);
   });
 }
 
-function renderDashboard() {
-  const all = getAllSubtopics();
-  const edges = getAllEdges();
-  const weakEdges = edges.filter(e => e.strength === 0);
-  const reviewed = all.filter(s => s.review.sessions > 0);
-  const weakConcepts = all.filter(s => {
-    const p = computeConceptPriority(s);
-    return s.review.easeScore < 2.0 || (s.review.sessions > 0 && p > 3);
-  });
-  const queue = buildReviewQueue();
-
-  document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card"><div class="stat-label">Concepts</div><div class="stat-value accent">${all.length}</div></div>
-    <div class="stat-card"><div class="stat-label">Weak Concepts</div><div class="stat-value ${weakConcepts.length > 0 ? 'weak' : 'accent'}">${weakConcepts.length}</div></div>
-    <div class="stat-card"><div class="stat-label">Weak Edges</div><div class="stat-value ${weakEdges.length > 0 ? 'ok' : 'accent'}">${weakEdges.length}</div></div>
-    <div class="stat-card"><div class="stat-label">Streak 🔥</div><div class="stat-value ${data.streak >= 3 ? 'accent' : 'ok'}">${data.streak}d</div></div>
-  `;
-
-  const badge = document.getElementById('queueBadge');
-  if (queue.length > 0) { badge.textContent = `${queue.length} to review`; badge.classList.add('visible'); }
-  else badge.classList.remove('visible');
-
-  const dashQueue = document.getElementById('dashQueue');
-  if (queue.length === 0) {
-    dashQueue.innerHTML = `<div class="section-title">Review Queue</div>
-      <div style="color:var(--text3);font-size:13px;padding:20px 0;">Nothing queued yet — add concepts and connect them.</div>`;
-    return;
-  }
-
-  const top = queue.slice(0, 10);
-  const maxP = queue[0].priority || 1;
-  dashQueue.innerHTML = `
-    <div class="section-title">Review Queue <span style="font-size:11px;color:var(--text3);font-family:var(--mono);font-weight:400;">sorted by priority score</span></div>
-    <div class="queue-list">${top.map(item => {
-      const pct = Math.min(100, (item.priority / maxP) * 100);
-      const fillClass = pct > 66 ? 'high' : pct > 33 ? 'mid' : '';
-      const name = item.type === 'concept' ? item.name : `${item.aName} ↔ ${item.bName}`;
-      const sub = item.type === 'concept'
-        ? `${item.topicName} · ${item.sessions} review${item.sessions !== 1 ? 's' : ''}`
-        : `Edge · ${strengthLabel(item.strength)}`;
-      const onclick = item.type === 'concept'
-        ? `showConcept('${item.id}')`
-        : `reviewEdgeDirect('${item.aId}','${item.bId}')`;
-      return `<div class="queue-item" onclick="${onclick}">
-        <div class="queue-item-left">
-          <div class="queue-item-name">${name}</div>
-          <div class="queue-item-sub">${sub}</div>
-        </div>
-        <div class="queue-item-right">
-          <div class="priority-bar"><div class="priority-fill ${fillClass}" style="width:${pct}%"></div></div>
-          <div class="type-tag ${item.type}">${item.type}</div>
-        </div>
-      </div>`;
-    }).join('')}</div>`;
+function toggleTopic(id) {
+  document.getElementById('titem-' + id)?.classList.toggle('open');
 }
 
-function renderEdgesView() {
-  const edges = getAllEdges();
-  const grid = document.getElementById('edgesGrid');
-  if (edges.length === 0) {
-    grid.innerHTML = `<div style="color:var(--text3);font-size:13px;grid-column:1/-1;padding:20px 0;">No connections yet. Open a concept and link it to another one.</div>`;
-    return;
-  }
-  const sorted = [...edges].sort((a, b) => a.strength - b.strength);
-  const labels = ['Weak', 'Medium', 'Strong'];
-  grid.innerHTML = sorted.map(e => `
-    <div class="edge-card s${e.strength}" onclick="reviewEdgeDirect('${e.aId}','${e.bId}')">
-      <div class="edge-card-nodes">
-        <span>${e.aName}</span>
-        <span class="edge-arrow">⟷</span>
-        <span>${e.bName}</span>
-      </div>
-      <div class="edge-card-meta">
-        <span>Click to review this connection</span>
-        <span class="edge-strength-label s${e.strength}">${labels[e.strength]}</span>
-      </div>
-    </div>`).join('');
-}
-
-function showConcept(id) {
-  const found = getSubtopic(id);
-  if (!found) return;
-  const { subtopic: s, topic: t } = found;
-
-  showView('concept');
-  document.getElementById('topbarTitle').textContent = s.name;
-  document.getElementById('topbarPath').innerHTML = `<span>${t.name}</span> / ${s.name}`;
-  document.getElementById('conceptBreadcrumb').innerHTML = `<span>${t.name}</span> → ${s.name}`;
-  document.getElementById('conceptTitle').textContent = s.name;
-
-  const p = computeConceptPriority(s);
-  document.getElementById('conceptMeta').innerHTML = `
-    <span class="tag">Reviews: ${s.review.sessions}</span>
-    <span class="tag">Ease: ${s.review.easeScore.toFixed(1)}</span>
-    <span class="tag ${p > 2 ? 'hi' : ''}">Priority: ${p.toFixed(1)}</span>
-  `;
-
-  document.getElementById('explanationBox').innerHTML = s.explanation
-    ? `<span>${s.explanation}</span>`
-    : `<span class="explanation-empty">No explanation yet. Click Edit to add your Feynman explanation.</span>`;
-
-  document.getElementById('keyPointsList').innerHTML = s.keyPoints.length ? `
-    <div class="explanation-label" style="margin-top:20px;">Key Points</div>
-    ${s.keyPoints.map(kp => `<div class="key-point"><div class="kp-dot"></div><span>${kp}</span></div>`).join('')}
-  ` : '';
-
-  const connEl = document.getElementById('connectionsList');
-  if (!s.connections.length) {
-    connEl.innerHTML = `<div style="font-size:12px;color:var(--text3);padding:8px 0;">No connections yet.</div>`;
-  } else {
-    connEl.innerHTML = s.connections.map(c => {
-      const other = getSubtopic(c.id);
-      if (!other) return '';
-      return `<div class="connection-item" onclick="showConcept('${c.id}')">
-        <span class="conn-name">${other.subtopic.name}</span>
-        <span class="conn-strength s${c.strength}">${strengthLabel(c.strength)}</span>
-      </div>`;
-    }).join('');
-  }
-
-  document.getElementById('btnEditConcept').onclick = () => openEditModal(id);
-  document.querySelectorAll('.subtopic-item').forEach(el => el.classList.remove('active'));
-  const subEl = document.getElementById('subtopic-' + id);
-  if (subEl) { subEl.classList.add('active'); document.getElementById('topic-item-' + t.id).classList.add('open'); }
-  window._currentConceptId = id;
-  closeSidebar();
+function typeColor(type) {
+  return { atomic: 'var(--accent)', process: 'var(--warn)', problem: 'var(--weak)', reconstruction: 'var(--accent2)' }[type] || 'var(--text3)';
 }
 
 // ============================================================
@@ -1234,105 +817,290 @@ function showConcept(id) {
 // ============================================================
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
+  document.getElementById('view-' + name)?.classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  const navEl = document.getElementById('nav-' + name);
-  if (navEl) navEl.classList.add('active');
+  document.getElementById('nav-' + name)?.classList.add('active');
   closeSidebar();
 
-  if (name === 'dashboard') { renderDashboard(); document.getElementById('topbarTitle').textContent = 'Dashboard'; document.getElementById('topbarPath').innerHTML = ''; }
-  else if (name === 'stats') { renderStats(); document.getElementById('topbarTitle').textContent = 'Stats'; document.getElementById('topbarPath').innerHTML = ''; }
-  else if (name === 'edges') { renderNeedsWork(); document.getElementById('topbarTitle').textContent = 'Needs Work'; document.getElementById('topbarPath').innerHTML = ''; }
-  else if (name === 'graph') { document.getElementById('topbarTitle').textContent = 'Knowledge Graph'; document.getElementById('topbarPath').innerHTML = ''; setTimeout(renderGraph, 50); }
-  else if (name === 'review') { document.getElementById('topbarTitle').textContent = 'Review Session'; document.getElementById('topbarPath').innerHTML = ''; }
+  if      (name === 'dashboard') { renderDashboard(); document.getElementById('topbarTitle').textContent = 'Dashboard'; document.getElementById('topbarPath').innerHTML = ''; }
+  else if (name === 'stats')     { renderStats();     document.getElementById('topbarTitle').textContent = 'Stats';     document.getElementById('topbarPath').innerHTML = ''; }
+  else if (name === 'review')    { document.getElementById('topbarTitle').textContent = 'Review Session'; document.getElementById('topbarPath').innerHTML = ''; }
 }
 
 function toggleSidebar() {
-  const sidebar = document.querySelector('.sidebar');
-  const backdrop = document.getElementById('sidebarBackdrop');
-  sidebar.classList.toggle('open');
-  backdrop.classList.toggle('visible');
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarBackdrop').classList.toggle('visible');
 }
-
 function closeSidebar() {
-  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebarBackdrop').classList.remove('visible');
 }
 
-function toggleTopic(id) { document.getElementById('topic-item-' + id).classList.toggle('open'); }
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  const total = data.items.length;
+  const due   = totalDue();
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Items</div><div class="stat-value accent">${total}</div></div>
+    <div class="stat-card"><div class="stat-label">Due Now</div><div class="stat-value ${due > 0 ? 'weak' : 'ok'}">${due}</div></div>
+    <div class="stat-card"><div class="stat-label">Sessions</div><div class="stat-value ok">${data.sessionCount}</div></div>
+    <div class="stat-card">
+      <div class="stat-label">Streak</div>
+      <div class="stat-value ${data.streak >= 2 ? 'accent' : 'ok'}">${data.streak >= 2 ? '🔥' : '○'} ${data.streak}d</div>
+      ${data.streak === 1 ? '<div style="font-size:10px;color:var(--text3);margin-top:2px;">keep it going</div>' : ''}
+    </div>`;
+
+  const queue = buildReviewQueue();
+  const badge = document.getElementById('queueBadge');
+  if (queue.length > 0) { badge.textContent = `${queue.length} due`; badge.classList.add('visible'); }
+  else badge.classList.remove('visible');
+
+  const dashQueue = document.getElementById('dashQueue');
+  if (!queue.length) {
+    const next = [...data.items]
+      .filter(i => i.review?.nextReviewSession)
+      .sort((a,b) => a.review.nextReviewSession - b.review.nextReviewSession)[0];
+    const away = next ? Math.max(0, next.review.nextReviewSession - data.sessionCount) : null;
+    const nextMsg = away !== null
+      ? `Next item due in <strong>${away} session${away !== 1 ? 's' : ''}</strong>`
+      : data.items.length === 0 ? 'Add some items to get started.' : 'No upcoming reviews scheduled.';
+    dashQueue.innerHTML = `<div class="section-title">Review Queue</div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:28px;text-align:center;">
+        <div style="font-size:24px;margin-bottom:10px;">✓</div>
+        <div style="font-family:var(--sans);font-size:15px;font-weight:700;margin-bottom:6px;">All caught up!</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:${data.items.length ? '20px' : '0'};">${nextMsg}</div>
+        ${data.items.length ? `<button class="btn-review" onclick="startReview(null,null,true)" style="font-size:11px;">Review Anyway</button>` : ''}
+      </div>`;
+    return;
+  }
+
+  const top = queue.slice(0, 10);
+  const maxP = queue[0].priority || 1;
+  dashQueue.innerHTML = `
+    <div class="section-title">Review Queue <span style="font-size:11px;color:var(--text3);font-weight:400;">top ${top.length} by priority</span></div>
+    <div class="queue-list">${top.map(item => {
+      const pct = Math.min(100, (item.priority / maxP) * 100);
+      const fillCls = pct > 66 ? 'hi' : pct > 33 ? 'mid' : '';
+      const topic = getTopic(item.topic_id);
+      return `<div class="queue-item" onclick="showItemList('${item.topic_id}','${item.type}')">
+        <div class="queue-item-left">
+          <div class="queue-item-name">${item.question}</div>
+          <div class="queue-item-sub">${topic?.name || ''} · ${item.review?.sessions || 0} reviews</div>
+        </div>
+        <div class="queue-item-right">
+          <div class="priority-bar"><div class="priority-fill ${fillCls}" style="width:${pct}%"></div></div>
+          <span class="type-tag ${item.type}">${TYPE_LABELS[item.type]}</span>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+}
+
+// ============================================================
+// ITEM LIST VIEW
+// ============================================================
+let _currentTopicId = null;
+let _currentType    = null;
+
+function showItemList(topicId, type) {
+  _currentTopicId = topicId;
+  _currentType    = type;
+
+  const topic = getTopic(topicId);
+  showView('items');
+
+  document.getElementById('topbarTitle').textContent = topic?.name || '';
+  document.getElementById('topbarPath').innerHTML = TYPE_LABELS[type];
+  document.getElementById('itemListTitle').textContent = topic?.name || '';
+  const badge = document.getElementById('itemListBadge');
+  badge.textContent = TYPE_LABELS[type];
+  badge.className = `type-badge ${type}`;
+
+  // Mark active folder
+  document.querySelectorAll('.folder-row').forEach(r => r.classList.remove('active'));
+  const folders = document.querySelectorAll(`#folders-${topicId} .folder-row`);
+  const typeIdx = TYPES.indexOf(type);
+  if (folders[typeIdx]) folders[typeIdx].classList.add('active');
+
+  renderItemList();
+  closeSidebar();
+}
+
+function renderItemList() {
+  const items = getTopicItems(_currentTopicId, _currentType);
+  const container = document.getElementById('itemListContainer');
+
+  if (!items.length) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">◌</div>
+      No ${TYPE_LABELS[_currentType].toLowerCase()} items yet.<br>Hit "+ Add" to create your first one.
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = items.map(item => {
+    const due = isDue(item);
+    const sessions = item.review?.sessions || 0;
+    const nrs = item.review?.nextReviewSession;
+    const away = nrs ? Math.max(0, nrs - data.sessionCount) : null;
+    const dueLabel = sessions === 0 ? 'new'
+      : due ? 'due now'
+      : away !== null ? `in ${away}s` : '';
+    const dueCls = sessions === 0 ? 'new-tag' : due ? 'due-now' : '';
+    const tagHtml = (item.tags || []).length
+      ? item.tags.map(t => `<span class="item-tag-label">${t}</span>`).join('')
+      : '';
+
+    return `<div class="item-card" id="icard-${item.id}">
+      <div class="item-card-header" onclick="toggleItemCard('${item.id}')">
+        <div class="item-card-question">${item.question}</div>
+        <div class="item-card-actions">
+          <button class="item-action-btn" onclick="event.stopPropagation();openEditItemModal('${item.id}')">Edit</button>
+          <button class="item-action-btn del" onclick="event.stopPropagation();deleteItem('${item.id}')">×</button>
+        </div>
+      </div>
+      <div class="item-card-meta">
+        ${dueLabel ? `<span class="due-tag ${dueCls}">${dueLabel}</span>` : ''}
+        <span>${sessions} review${sessions !== 1 ? 's' : ''}</span>
+        ${tagHtml}
+      </div>
+      <div class="item-card-answer">${item.answer || '<em style="color:var(--text3)">No answer yet — edit to add one.</em>'}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleItemCard(id) {
+  document.getElementById('icard-' + id)?.classList.toggle('open');
+}
+
+// ============================================================
+// ADD / EDIT / DELETE ITEMS
+// ============================================================
+function openAddItemModal() {
+  document.getElementById('modalTitle').textContent = `Add ${TYPE_LABELS[_currentType]}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="field"><label>Question</label>
+      <textarea id="f-q" placeholder="Enter your question or prompt..." style="min-height:80px;"></textarea></div>
+    <div class="field"><label>Answer / Reference</label>
+      <textarea id="f-a" placeholder="The reference answer..." style="min-height:120px;"></textarea></div>
+    <div class="field"><label>Tag (optional concept label)</label>
+      <input id="f-tag" type="text" placeholder="e.g. ARP, Ethernet Switching..."></div>`;
+  document.getElementById('modalSaveBtn').onclick = async () => {
+    const question = document.getElementById('f-q').value.trim();
+    if (!question) return;
+    const answer = document.getElementById('f-a').value.trim();
+    const tag = document.getElementById('f-tag').value.trim();
+    const item = {
+      id: uid(), topic_id: _currentTopicId, type: _currentType,
+      question, answer, tags: tag ? [tag] : [],
+      review: { sessions: 0, lastSession: -1, easeScore: 2.5, interval: 1, nextReviewSession: 0 }
+    };
+    data.items.push(item);
+    await saveItem(item);
+    closeModal();
+    renderSidebar();
+    renderItemList();
+  };
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function openEditItemModal(itemId) {
+  const item = getItem(itemId);
+  if (!item) return;
+  document.getElementById('modalTitle').textContent = `Edit ${TYPE_LABELS[item.type]}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="field"><label>Question</label>
+      <textarea id="f-q" style="min-height:80px;">${item.question}</textarea></div>
+    <div class="field"><label>Answer / Reference</label>
+      <textarea id="f-a" style="min-height:120px;">${item.answer}</textarea></div>
+    <div class="field"><label>Tag (optional)</label>
+      <input id="f-tag" type="text" value="${(item.tags||[])[0]||''}"></div>`;
+  document.getElementById('modalSaveBtn').onclick = async () => {
+    item.question = document.getElementById('f-q').value.trim() || item.question;
+    item.answer   = document.getElementById('f-a').value.trim();
+    const tag = document.getElementById('f-tag').value.trim();
+    item.tags = tag ? [tag] : [];
+    await saveItem(item);
+    closeModal();
+    renderItemList();
+  };
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function deleteItem(itemId) {
+  const item = getItem(itemId);
+  if (!item) return;
+  if (!confirm(`Delete this ${TYPE_LABELS[item.type]}?`)) return;
+  data.items = data.items.filter(i => i.id !== itemId);
+  await SB.delete('items', itemId);
+  renderSidebar();
+  renderItemList();
+}
+
+// ============================================================
+// ADD / DELETE TOPICS
+// ============================================================
+function openAddTopicModal() {
+  document.getElementById('modalTitle').textContent = 'Add Topic';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="field"><label>Topic Name</label>
+      <input id="f-tname" type="text" placeholder="e.g. Networking, TCP/IP, Cryptography..."></div>`;
+  document.getElementById('modalSaveBtn').onclick = async () => {
+    const name = document.getElementById('f-tname').value.trim();
+    if (!name) return;
+    const topic = { id: tuid(), name };
+    data.topics.push(topic);
+    await saveTopic(topic);
+    closeModal();
+    renderSidebar();
+  };
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+async function deleteTopic(topicId) {
+  const topic = getTopic(topicId);
+  if (!topic) return;
+  const itemCount = data.items.filter(i => i.topic_id === topicId).length;
+  if (!confirm(`Delete topic "${topic.name}" and all ${itemCount} items inside it?`)) return;
+  const toDelete = data.items.filter(i => i.topic_id === topicId);
+  for (const item of toDelete) await SB.delete('items', item.id);
+  data.items = data.items.filter(i => i.topic_id !== topicId);
+  await SB.delete('topics', topicId);
+  data.topics = data.topics.filter(t => t.id !== topicId);
+  renderSidebar();
+  renderDashboard();
+  showView('dashboard');
+}
+
+// ============================================================
+// MODAL
+// ============================================================
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
 
 // ============================================================
 // REVIEW SESSION
 // ============================================================
-function bumpSession() {
-  const today = new Date().toISOString().split('T')[0];
-  if (data.lastSessionDate === today) return; // already bumped today
-
-  // Streak logic
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-  if (data.lastSessionDate === yesterday) {
-    data.streak++; // reviewed yesterday → extend streak
-  } else if (data.lastSessionDate === '') {
-    data.streak = 1; // first ever session
-  } else {
-    data.streak = 1; // missed a day → reset
-  }
-
-  data.sessionCount++;
-  data.lastSessionDate = today;
-  saveSessionCount();
-}
-
 let reviewQueue = [];
 let reviewIndex = 0;
 let reviewResults = { graded: 0, skipped: 0, again: 0 };
-let sessionBumped = false; // only bump sessionCount on first actual grade
+let sessionBumped = false;
 
-function startReview() {
-  reviewQueue = buildReviewQueue();
-  if (!reviewQueue.length) { alert('No concepts yet — add some first!'); return; }
-  reviewIndex = 0;
-  reviewResults = { graded: 0, skipped: 0, again: 0 };
-  sessionBumped = false;
-  showView('review');
-  document.getElementById('reviewDone').classList.remove('visible');
-  document.getElementById('reviewCard').style.display = '';
-  showReviewCard();
-}
-
-function startTopicReview(topicId) {
-  const topic = data.topics.find(t => t.id === topicId);
-  if (!topic || !topic.subtopics.length) { alert('This topic has no concepts yet.'); return; }
-
-  const topicSubIds = new Set(topic.subtopics.map(s => s.id));
-
-  const conceptItems = topic.subtopics.map(s => ({
-    type: 'concept',
-    id: s.id, name: s.name, topicName: topic.name,
-    priority: computeConceptPriority(s),
-    sessions: s.review.sessions
-  }));
-
-  const edgeItems = getAllEdges()
-    .filter(e => e.strength < 2 && topicSubIds.has(e.aId) && topicSubIds.has(e.bId))
-    .map(e => ({
-      type: 'edge',
-      aId: e.aId, bId: e.bId,
-      aName: e.aName, bName: e.bName,
-      strength: e.strength,
-      priority: computeEdgePriority(e)
-    }));
-
-  const queue = [...conceptItems, ...edgeItems].sort((a, b) => b.priority - a.priority);
-  if (!queue.length) { alert('Nothing to review in this topic.'); return; }
-
-  reviewQueue = queue;
+function startReview(topicId = null, type = null, includeAll = false) {
+  reviewQueue = buildReviewQueue(topicId, type, includeAll);
+  if (!reviewQueue.length) {
+    alert('Nothing to review right now.');
+    return;
+  }
   reviewIndex = 0;
   reviewResults = { graded: 0, skipped: 0, again: 0 };
   sessionBumped = false;
 
+  const topic = topicId ? getTopic(topicId) : null;
   showView('review');
-  document.getElementById('topbarTitle').textContent = `Review: ${topic.name}`;
+  document.getElementById('topbarTitle').textContent = topic ? `Review: ${topic.name}` : 'Review Session';
   document.getElementById('reviewDone').classList.remove('visible');
   document.getElementById('reviewCard').style.display = '';
   showReviewCard();
@@ -1348,24 +1116,19 @@ function showReviewCard() {
   document.getElementById('gradeSection').classList.remove('visible');
 
   const item = reviewQueue[reviewIndex];
+  const topic = getTopic(item.topic_id);
+  const typePrompts = {
+    atomic:         'Answer:',
+    process:        'Trace:',
+    problem:        'Solve:',
+    reconstruction: 'Reconstruct from scratch:'
+  };
 
-  if (item.type === 'concept') {
-    const { subtopic: s, topic: t } = getSubtopic(item.id);
-    document.getElementById('reviewType').className = 'review-type t-concept';
-    document.getElementById('reviewType').textContent = '▸ CONCEPT REVIEW';
-    document.getElementById('reviewPrompt').textContent = `Explain: ${s.name}`;
-    document.getElementById('reviewContext').textContent = `${t.name} · Teach this from scratch. Cover all connections you know.`;
-    let ref = s.explanation || '';
-    if (s.keyPoints.length) ref += (ref ? '\n\n' : '') + 'Key Points:\n' + s.keyPoints.map(k => '• ' + k).join('\n');
-    document.getElementById('referenceAnswer').textContent = ref || 'No reference yet — edit this concept to add your explanation and key points.';
-  } else {
-    document.getElementById('reviewType').className = 'review-type t-edge';
-    document.getElementById('reviewType').textContent = '◌ EDGE REVIEW';
-    document.getElementById('reviewPrompt').textContent = `Explain the connection between "${item.aName}" and "${item.bName}"`;
-    document.getElementById('reviewContext').textContent = `Don't explain each concept in isolation — explain WHY and HOW they relate to each other.`;
-    document.getElementById('referenceAnswer').textContent =
-      `Guiding questions:\n• How does ${item.aName} directly affect or enable ${item.bName}?\n• What would break in one if you changed the other?\n• Is there an attack or mechanism that links them?\n• Could you draw an arrow between them and label it?`;
-  }
+  document.getElementById('reviewType').className = `review-type t-${item.type}`;
+  document.getElementById('reviewType').textContent = TYPE_LABELS[item.type].toUpperCase();
+  document.getElementById('reviewPrompt').textContent = item.question;
+  document.getElementById('reviewContext').textContent = `${topic?.name || ''} · ${typePrompts[item.type]}`;
+  document.getElementById('referenceAnswer').textContent = item.answer || 'No reference answer yet — edit this item to add one.';
 }
 
 function revealAnswer() {
@@ -1377,31 +1140,21 @@ function skipCard() {
   skipped._skipped = true;
   reviewQueue.push(skipped);
   reviewResults.skipped++;
-  // End session if all remaining are skipped
   if (reviewQueue.slice(reviewIndex).every(x => x._skipped)) { finishReview(); return; }
   showReviewCard();
 }
 
 async function gradeCard(grade) {
-  // Only bump the session counter on the first actual grade — not on Start
   if (!sessionBumped) { bumpSession(); sessionBumped = true; }
 
   const item = reviewQueue[reviewIndex];
-  if (item.type === 'concept') {
-    updateConceptAfterReview(item.id, grade);
-    const { subtopic: s, topic: t } = getSubtopic(item.id);
-    await saveConcept(s, t.id, t.name);
-    for (const c of s.connections) {
-      const found = getSubtopic(c.id);
-      if (found) await saveConcept(found.subtopic, found.topic.id, found.topic.name);
-    }
-  } else {
-    updateEdgeAfterReview(item.aId, item.bId, grade);
-    const ra = getSubtopic(item.aId); const rb = getSubtopic(item.bId);
-    if (ra) await saveConcept(ra.subtopic, ra.topic.id, ra.topic.name);
-    if (rb) await saveConcept(rb.subtopic, rb.topic.id, rb.topic.name);
+  const live = getItem(item.id);
+  if (live) {
+    updateItemReview(live, grade);
+    await saveItem(live);
   }
-  await saveSessionCount();
+
+  await saveMeta();
   if (grade === 0) reviewResults.again++;
   reviewResults.graded++;
   reviewIndex++;
@@ -1415,480 +1168,140 @@ function finishReview() {
   document.getElementById('reviewDone').classList.add('visible');
   document.getElementById('progressFill').style.width = '100%';
   document.getElementById('progressText').textContent = 'Done';
-  const streakMsg = data.streak > 1 ? `\n\n🔥 ${data.streak} day streak — keep it going!` : '';
+  const streakMsg = data.streak >= 2
+    ? `\n\n🔥 ${data.streak} day streak — keep it going!`
+    : `\n\nDay 1 — come back tomorrow to start a streak.`;
   document.getElementById('doneSub').textContent =
-    `${reviewResults.graded} reviewed · ${reviewResults.skipped} skipped · ${reviewResults.again} marked Again\n\nPriority scores updated. Weakest and longest-untouched concepts will surface first next session.${streakMsg}`;
+    `${reviewResults.graded} reviewed · ${reviewResults.skipped} skipped · ${reviewResults.again} marked Again${streakMsg}`;
   renderDashboard();
 }
 
-function reviewEdgeDirect(aId, bId) {
-  const ra = getSubtopic(aId); const rb = getSubtopic(bId);
-  if (!ra || !rb) return;
-  const edge = ra.subtopic.connections.find(c => c.id === bId) || { strength: 0 };
-  reviewQueue = [{ type: 'edge', aId, bId, aName: ra.subtopic.name, bName: rb.subtopic.name, strength: edge.strength, priority: 99 }];
-  reviewIndex = 0;
-  reviewResults = { graded: 0, skipped: 0, again: 0 };
-  sessionBumped = false;
-  showView('review');
-  document.getElementById('reviewDone').classList.remove('visible');
-  document.getElementById('reviewCard').style.display = '';
-  showReviewCard();
-}
-
 // ============================================================
-// STATS VIEW
+// STATS
 // ============================================================
-function easeToStatus(ease, sessions) {
-  if (sessions === 0) return { label: 'New', cls: 'new' };
-  if (ease < 1.7) return { label: 'Struggling', cls: 'struggling' };
-  if (ease < 2.3) return { label: 'Learning', cls: 'learning' };
-  return { label: 'Strong', cls: 'strong' };
-}
-
-function easeToColor(ease) {
-  if (ease < 1.7) return 'var(--weak)';
-  if (ease < 2.3) return '#f59e0b';
-  return 'var(--accent)';
-}
-
 function renderStats() {
-  const all = getAllSubtopics();
-  if (!all.length) {
-    document.getElementById('statsContent').innerHTML =
-      `<div class="empty-box">No concepts yet. Add topics and concepts to see stats.</div>`;
+  if (!data.items.length) {
+    document.getElementById('statsContent').innerHTML = `<div class="empty-state"><div class="empty-state-icon">◎</div>No items yet. Add topics and start filling them in.</div>`;
     return;
   }
 
-  // Most reviewed — top 5 by session count, must have at least 1 review
-  const mostReviewed = [...all]
-    .filter(s => s.review.sessions > 0)
-    .sort((a, b) => b.review.sessions - a.review.sessions)
+  // Most reviewed
+  const mostReviewed = [...data.items]
+    .filter(i => (i.review?.sessions || 0) > 0)
+    .sort((a,b) => (b.review?.sessions||0) - (a.review?.sessions||0))
     .slice(0, 5);
 
-  // Most neglected — exclude anything in mostReviewed, sort by sessions asc then priority desc
-  const mostReviewedIds = new Set(mostReviewed.map(s => s.id));
-  const neglected = [...all]
-    .filter(s => !mostReviewedIds.has(s.id))
-    .sort((a, b) => {
-      if (a.review.sessions !== b.review.sessions) return a.review.sessions - b.review.sessions;
-      return computeConceptPriority(b) - computeConceptPriority(a);
+  const reviewedIds = new Set(mostReviewed.map(i => i.id));
+  const neglected = [...data.items]
+    .filter(i => !reviewedIds.has(i.id))
+    .sort((a,b) => {
+      if ((a.review?.sessions||0) !== (b.review?.sessions||0))
+        return (a.review?.sessions||0) - (b.review?.sessions||0);
+      return computePriority(b) - computePriority(a);
     })
     .slice(0, 5);
 
   const highlightHTML = `
     <div class="stats-highlight-grid">
       <div class="stats-highlight-box">
-        <div class="stats-highlight-box-header">
-          <div class="nw-dot" style="background:var(--accent)"></div>
-          Most Reviewed
-        </div>
-        ${mostReviewed.map(s => `
-          <div class="stats-highlight-item" onclick="showConcept('${s.id}')">
-            <div class="shi-left">
-              <div class="shi-name">${s.name}</div>
-              <div class="shi-topic">${s.topicName}</div>
-            </div>
-            <div class="shi-right">
-              <div class="shi-count">${s.review.sessions}</div>
-              <div style="font-size:10px;color:var(--text3)">reviews</div>
-            </div>
-          </div>`).join('')}
+        <div class="stats-highlight-box-header">● Most Reviewed</div>
+        ${mostReviewed.length ? mostReviewed.map(i => {
+          const topic = getTopic(i.topic_id);
+          return `<div class="stats-highlight-item">
+            <div><div class="shi-name">${i.question.slice(0,60)}${i.question.length>60?'...':''}</div>
+            <div class="shi-topic">${topic?.name||''} · ${TYPE_LABELS[i.type]}</div></div>
+            <div class="shi-count">${i.review?.sessions||0}</div>
+          </div>`;
+        }).join('') : '<div style="padding:16px;font-size:12px;color:var(--text3);">Nothing reviewed yet.</div>'}
       </div>
       <div class="stats-highlight-box">
-        <div class="stats-highlight-box-header">
-          <div class="nw-dot" style="background:var(--weak)"></div>
-          Most Neglected
-        </div>
-        ${neglected.map(s => `
-          <div class="stats-highlight-item" onclick="showConcept('${s.id}')">
-            <div class="shi-left">
-              <div class="shi-name">${s.name}</div>
-              <div class="shi-topic">${s.topicName}</div>
-            </div>
-            <div class="shi-right">
-              <div class="shi-count neglected">${s.review.sessions}</div>
-              <div style="font-size:10px;color:var(--text3)">reviews</div>
-            </div>
-          </div>`).join('')}
+        <div class="stats-highlight-box-header" style="color:var(--weak);">● Most Neglected</div>
+        ${neglected.length ? neglected.map(i => {
+          const topic = getTopic(i.topic_id);
+          return `<div class="stats-highlight-item">
+            <div><div class="shi-name">${i.question.slice(0,60)}${i.question.length>60?'...':''}</div>
+            <div class="shi-topic">${topic?.name||''} · ${TYPE_LABELS[i.type]}</div></div>
+            <div class="shi-count neglected">${i.review?.sessions||0}</div>
+          </div>`;
+        }).join('') : '<div style="padding:16px;font-size:12px;color:var(--text3);">Nothing neglected.</div>'}
       </div>
     </div>`;
 
-  // Per-topic breakdown
-  const topicBlocksHTML = data.topics.map((topic, i) => {
-    if (!topic.subtopics.length) return '';
-    const totalReviews = topic.subtopics.reduce((sum, s) => sum + s.review.sessions, 0);
-    const avgEase = topic.subtopics.reduce((sum, s) => sum + s.review.easeScore, 0) / topic.subtopics.length;
-    const reviewed = topic.subtopics.filter(s => s.review.sessions > 0).length;
-    const status = easeToStatus(avgEase, reviewed);
+  const topicBlocksHTML = data.topics.map(topic => {
+    const topicItems = data.items.filter(i => i.topic_id === topic.id);
+    if (!topicItems.length) return '';
+    const totalReviews = topicItems.reduce((s,i) => s + (i.review?.sessions||0), 0);
+    const totalDueInTopic = topicItems.filter(isDue).length;
 
-    const conceptRows = [...topic.subtopics]
-      .sort((a, b) => b.review.sessions - a.review.sessions)
-      .map(s => {
-        const st = easeToStatus(s.review.easeScore, s.review.sessions);
-        // ease 1.2–4.0 → normalize to 0–100%
-        const easePct = Math.round(((s.review.easeScore - 1.2) / (4.0 - 1.2)) * 100);
-        return `<div class="concept-stat-row" onclick="showConcept('${s.id}')">
-          <div class="csr-name">${s.name}</div>
-          <div class="ease-bar"><div class="ease-fill" style="width:${easePct}%;background:${easeToColor(s.review.easeScore)}"></div></div>
-          <div class="csr-reviews">${s.review.sessions} review${s.review.sessions !== 1 ? 's' : ''}</div>
-          <div class="csr-status ${st.cls}">${st.label}</div>
-        </div>`;
-      }).join('');
-
-    return `
-      <div class="topic-stat-block" id="tsb-${topic.id}">
-        <div class="topic-stat-header" onclick="toggleTopicStat('${topic.id}')">
-          <div>
-            <div class="topic-stat-name">${topic.name}</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:16px;">
-            <div class="topic-stat-summary">
-              <span>${totalReviews} total reviews</span>
-              <span>${reviewed}/${topic.subtopics.length} concepts touched</span>
-              <span class="csr-status ${status.cls}" style="font-size:9px;">${status.label}</span>
-            </div>
-            <span class="topic-stat-chevron">▶</span>
-          </div>
+    const typeRows = TYPES.map(type => {
+      const items = topicItems.filter(i => i.type === type);
+      if (!items.length) return '';
+      const reviews = items.reduce((s,i) => s + (i.review?.sessions||0), 0);
+      const due = items.filter(isDue).length;
+      return `<div class="type-stat-row">
+        <div class="type-stat-label">
+          <div style="width:7px;height:7px;border-radius:50%;background:${typeColor(type)};flex-shrink:0;"></div>
+          ${TYPE_LABELS[type]}
+          <span class="type-tag ${type}" style="margin-left:4px;">${items.length}</span>
         </div>
-        <div class="topic-stat-body">
-          <div style="display:flex;justify-content:space-between;padding:8px 18px 6px;font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);">
-            <span>Concept</span>
-            <div style="display:flex;gap:52px;"><span>Ease</span><span>Reviews</span><span style="min-width:62px;text-align:center;">Status</span></div>
-          </div>
-          ${conceptRows}
+        <div class="type-stat-nums">
+          <span><strong>${reviews}</strong>reviews</span>
+          <span><strong style="color:${due>0?'var(--weak)':'var(--ok)'}">${due}</strong>due</span>
         </div>
       </div>`;
+    }).join('');
+
+    return `<div class="topic-stat-block" id="tsb-${topic.id}">
+      <div class="topic-stat-header" onclick="this.parentElement.classList.toggle('open')">
+        <div>
+          <div class="topic-stat-name">${topic.name}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div class="topic-stat-summary">
+            <span>${topicItems.length} items</span>
+            <span>${totalReviews} reviews</span>
+            <span style="color:${totalDueInTopic>0?'var(--weak)':'var(--ok)'};">${totalDueInTopic} due</span>
+          </div>
+          <span class="topic-stat-chevron">▶</span>
+        </div>
+      </div>
+      <div class="topic-stat-body">${typeRows}</div>
+    </div>`;
   }).join('');
 
   document.getElementById('statsContent').innerHTML = `
     ${highlightHTML}
-    <div class="section-title">By Topic</div>
-    ${topicBlocksHTML}
-  `;
-}
-
-function toggleTopicStat(id) {
-  document.getElementById('tsb-' + id).classList.toggle('open');
+    <div class="section-title" style="margin-top:4px;">By Topic</div>
+    ${topicBlocksHTML || '<div class="empty-state">No topics yet.</div>'}`;
 }
 
 // ============================================================
-// NEEDS WORK VIEW
+// RESET
 // ============================================================
-function renderNeedsWork() {
-  renderWeakConcepts();
-  renderEdgesView();
-}
-
-function renderWeakConcepts() {
-  const all = getAllSubtopics();
-  const grid = document.getElementById('weakConceptsGrid');
-
-  const weak = all.map(s => {
-    const p = computeConceptPriority(s);
-    const gap = data.sessionCount - s.review.lastSession;
-    const signals = [];
-    let severity = null;
-
-    if (s.review.easeScore < 1.6) {
-      signals.push({ text: 'Low ease', cls: 'bad' }); severity = 'high';
-    } else if (s.review.easeScore < 2.0) {
-      signals.push({ text: 'Struggling', cls: 'warn' }); if (!severity) severity = 'mid';
-    }
-
-    if (s.review.sessions === 0) {
-      signals.push({ text: 'Never reviewed', cls: 'warn' }); if (!severity) severity = 'mid';
-    } else if (gap > 2) {
-      signals.push({ text: `${gap} sessions ago`, cls: gap > 4 ? 'bad' : 'warn' });
-      if (gap > 4) severity = 'high'; else if (!severity) severity = 'mid';
-    }
-
-    if (p > 3 && s.review.sessions > 0) {
-      signals.push({ text: `Priority ${p.toFixed(1)}`, cls: 'bad' }); severity = 'high';
-    }
-
-    return { s, p, signals, severity };
-  }).filter(x => x.severity !== null)
-    .sort((a, b) => a.severity === b.severity ? b.p - a.p : a.severity === 'high' ? -1 : 1);
-
-  if (!weak.length) {
-    grid.innerHTML = `<div class="empty-box" style="grid-column:1/-1;">
-      No weak concepts detected yet. As you review, the system will flag anything that slips.
-    </div>`;
-    return;
-  }
-
-  grid.innerHTML = weak.map(({ s, signals, severity }) => `
-    <div class="weak-concept-card severity-${severity}" onclick="showConcept('${s.id}')">
-      <div class="wc-name">${s.name}</div>
-      <div class="wc-topic">${s.topicName}</div>
-      <div class="wc-signals">
-        ${signals.map(sig => `<span class="wc-signal ${sig.cls}">${sig.text}</span>`).join('')}
-      </div>
-    </div>`).join('');
-}
-
-function renderEdgesView() {
-  const edges = getAllEdges();
-  const grid = document.getElementById('edgesGrid');
-  if (!edges.length) {
-    grid.innerHTML = `<div class="empty-box" style="grid-column:1/-1;">No connections yet. Open a concept and link it to another one.</div>`;
-    return;
-  }
-  const sorted = [...edges].sort((a, b) => a.strength - b.strength);
-  const labels = ['Weak', 'Medium', 'Strong'];
-  grid.innerHTML = sorted.map(e => `
-    <div class="edge-card s${e.strength}" onclick="reviewEdgeDirect('${e.aId}','${e.bId}')">
-      <div class="edge-card-nodes">
-        <span>${e.aName}</span><span class="edge-arrow">⟷</span><span>${e.bName}</span>
-      </div>
-      <div class="edge-card-meta">
-        <span>Click to review</span>
-        <span class="edge-strength-label s${e.strength}">${labels[e.strength]}</span>
-      </div>
-    </div>`).join('');
-}
-
-// ============================================================
-// GRAPH
-// ============================================================
-function renderGraph() {
-  const canvas = document.getElementById('graphCanvas');
-  const ctx = canvas.getContext('2d');
-  const W = canvas.offsetWidth, H = canvas.offsetHeight;
-  canvas.width = W; canvas.height = H;
-
-  const all = getAllSubtopics();
-  if (!all.length) {
-    ctx.fillStyle = '#4a5568'; ctx.font = '14px JetBrains Mono';
-    ctx.textAlign = 'center'; ctx.fillText('No concepts yet.', W/2, H/2); return;
-  }
-
-  const nodes = all.map((s, i) => {
-    const a = (i / all.length) * Math.PI * 2;
-    const r = Math.min(W, H) * 0.3;
-    return { id: s.id, name: s.name, topic: s.topicName, x: W/2 + r*Math.cos(a), y: H/2 + r*Math.sin(a), vx: 0, vy: 0, sessions: s.review.sessions };
-  });
-
-  const edges = getAllEdges();
-
-  for (let i = 0; i < 100; i++) {
-    nodes.forEach(a => nodes.forEach(b => {
-      if (a===b) return;
-      const dx=a.x-b.x, dy=a.y-b.y, d=Math.sqrt(dx*dx+dy*dy)||1;
-      const f=3500/(d*d); a.vx+=dx/d*f; a.vy+=dy/d*f;
-    }));
-    edges.forEach(e => {
-      const a=nodes.find(n=>n.id===e.aId), b=nodes.find(n=>n.id===e.bId);
-      if (!a||!b) return;
-      const dx=b.x-a.x, dy=b.y-a.y, d=Math.sqrt(dx*dx+dy*dy)||1;
-      const f=(d-150)*0.05;
-      a.vx+=dx/d*f; a.vy+=dy/d*f; b.vx-=dx/d*f; b.vy-=dy/d*f;
-    });
-    nodes.forEach(n => {
-      n.vx+=(W/2-n.x)*0.01; n.vy+=(H/2-n.y)*0.01;
-      n.x+=n.vx*0.3; n.y+=n.vy*0.3; n.vx*=0.7; n.vy*=0.7;
-      n.x=Math.max(70,Math.min(W-70,n.x)); n.y=Math.max(40,Math.min(H-40,n.y));
-    });
-  }
-
-  ctx.clearRect(0,0,W,H);
-
-  const edgeColors = ['#ff3b5c','#f59e0b','#00d4ff'];
-  edges.forEach(e => {
-    const a=nodes.find(n=>n.id===e.aId), b=nodes.find(n=>n.id===e.bId);
-    if (!a||!b) return;
-    ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
-    ctx.strokeStyle=edgeColors[e.strength]+'66'; ctx.lineWidth=e.strength===2?2.5:1.5; ctx.stroke();
-  });
-
-  const palette=['#7c3aed','#0ea5e9','#10b981','#f59e0b','#ec4899'];
-  const topicColors={};
-  data.topics.forEach((t,i)=>topicColors[t.name]=palette[i%palette.length]);
-
-  nodes.forEach(n => {
-    const color=topicColors[n.topic]||'#666';
-    const r=10+Math.min(n.sessions,5);
-    const grd=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,r*2.5);
-    grd.addColorStop(0,color+'44'); grd.addColorStop(1,'transparent');
-    ctx.beginPath(); ctx.arc(n.x,n.y,r*2.5,0,Math.PI*2); ctx.fillStyle=grd; ctx.fill();
-    ctx.beginPath(); ctx.arc(n.x,n.y,r,0,Math.PI*2);
-    ctx.fillStyle=color+'cc'; ctx.fill(); ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.stroke();
-    ctx.fillStyle='#e2e8f0'; ctx.font='11px JetBrains Mono'; ctx.textAlign='center';
-    ctx.fillText(n.name.length>18?n.name.slice(0,16)+'…':n.name, n.x, n.y+r+14);
-  });
-}
-
-// ============================================================
-// MODALS
-// ============================================================
-function openAddModal(type, topicId) {
-  if (type === 'topic') {
-    document.getElementById('modalTitle').textContent = 'Add Topic';
-    document.getElementById('modalBody').innerHTML = `
-      <div class="field"><label>Topic Name</label>
-        <input id="f-topicName" type="text" placeholder="e.g. Firewalls, Cryptography, DNS"></div>`;
-    document.getElementById('modalSaveBtn').onclick = async () => {
-      const name = document.getElementById('f-topicName').value.trim();
-      if (!name) return;
-      const newTopic = { id: tuid(), name, subtopics: [] };
-      data.topics.push(newTopic);
-      await saveTopic(newTopic);
-      renderSidebar(); renderDashboard(); closeModalDirect();
-    };
-  } else {
-    document.getElementById('modalTitle').textContent = 'Add Concept';
-    document.getElementById('modalBody').innerHTML = `
-      <div class="field"><label>Concept Name</label>
-        <input id="f-name" type="text" placeholder="e.g. SYN Cookies, ARP Spoofing"></div>
-      <div class="field"><label>Feynman Explanation</label>
-        <textarea id="f-explanation" placeholder="Explain it in your own words, as if teaching someone from scratch..."></textarea></div>
-      <div class="field"><label>Key Points</label>
-        <div id="kpInput"></div>
-        <button class="add-kp-btn" onclick="addKpRow()">+ Add key point</button></div>`;
-    addKpRow();
-    document.getElementById('modalSaveBtn').onclick = async () => {
-      const name = document.getElementById('f-name').value.trim();
-      if (!name) return;
-      const explanation = document.getElementById('f-explanation').value.trim();
-      const kps = [...document.querySelectorAll('.kp-input-field')].map(i=>i.value.trim()).filter(Boolean);
-      const topic = data.topics.find(t=>t.id===topicId);
-      if (!topic) return;
-      const newConcept = { id: uid(), name, explanation, keyPoints: kps, connections: [],
-        review: { sessions: 0, lastSession: -1, easeScore: 2.5 } };
-      topic.subtopics.push(newConcept);
-      await saveConcept(newConcept, topic.id, topic.name);
-      renderSidebar(); renderDashboard(); closeModalDirect();
-    };
-  }
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-function openEditModal(id) {
-  const { subtopic: s, topic: t } = getSubtopic(id);
-  document.getElementById('modalTitle').textContent = 'Edit Concept';
-  document.getElementById('modalBody').innerHTML = `
-    <div class="field"><label>Name</label><input id="f-name" type="text" value="${s.name}"></div>
-    <div class="field"><label>Feynman Explanation</label>
-      <textarea id="f-explanation">${s.explanation}</textarea></div>
-    <div class="field"><label>Key Points</label>
-      <div id="kpInput"></div>
-      <button class="add-kp-btn" onclick="addKpRow()">+ Add key point</button></div>`;
-  s.keyPoints.forEach(kp => addKpRow(kp));
-  if (!s.keyPoints.length) addKpRow();
-  document.getElementById('modalSaveBtn').onclick = async () => {
-    s.name = document.getElementById('f-name').value.trim() || s.name;
-    s.explanation = document.getElementById('f-explanation').value.trim();
-    s.keyPoints = [...document.querySelectorAll('.kp-input-field')].map(i=>i.value.trim()).filter(Boolean);
-    await saveConcept(s, t.id, t.name);
-    renderSidebar(); showConcept(id); closeModalDirect();
-  };
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-function openAddConnectionModal() {
-  const id = window._currentConceptId;
-  const { subtopic: s, topic: t } = getSubtopic(id);
-  const all = getAllSubtopics().filter(sub => sub.id !== id && !s.connections.find(c => c.id === sub.id));
-  document.getElementById('modalTitle').textContent = 'Link Concept';
-  document.getElementById('modalBody').innerHTML = `
-    <div class="field"><label>Connect to</label>
-      <select id="f-connTarget">
-        <option value="">Select a concept...</option>
-        ${all.map(sub=>`<option value="${sub.id}">${sub.topicName} → ${sub.name}</option>`).join('')}
-      </select></div>
-    <div class="hint">Edge starts Weak. Strength is earned through edge reviews — not declared upfront. Poor concept reviews will degrade edge strength automatically.</div>`;
-  document.getElementById('modalSaveBtn').onclick = async () => {
-    const targetId = document.getElementById('f-connTarget').value;
-    if (!targetId) return;
-    s.connections.push({ id: targetId, strength: 0 });
-    const { subtopic: other, topic: otherTopic } = getSubtopic(targetId);
-    if (other && !other.connections.find(c => c.id === id)) other.connections.push({ id, strength: 0 });
-    await saveConcept(s, t.id, t.name);
-    if (other) await saveConcept(other, otherTopic.id, otherTopic.name);
-    showConcept(id); renderSidebar(); closeModalDirect();
-  };
-  document.getElementById('modalOverlay').classList.add('open');
-}
-
-function addKpRow(val='') {
-  const row = document.createElement('div');
-  row.className = 'kp-row';
-  row.innerHTML = `<input class="kp-input-field" type="text" placeholder="Key point..." value="${val}">
-    <button class="kp-remove" onclick="this.parentElement.remove()">×</button>`;
-  document.getElementById('kpInput').appendChild(row);
-}
-
-function closeModal(e) { if (e.target===document.getElementById('modalOverlay')) closeModalDirect(); }
-function closeModalDirect() { document.getElementById('modalOverlay').classList.remove('open'); }
-
-// ============================================================
-// DELETE
-// ============================================================
-async function deleteTopic(topicId) {
-  const topic = data.topics.find(t => t.id === topicId);
-  if (!topic) return;
-  const confirmed = confirm(`Delete topic "${topic.name}" and all its concepts? This cannot be undone.`);
+async function resetAllStats() {
+  const confirmed = confirm(
+    'Reset all review stats?\n\nThis will zero out every item\'s session count, ease score, and interval. Your topics and items stay intact. This cannot be undone.'
+  );
   if (!confirmed) return;
 
-  // Delete all subtopics from DB and remove their connections from other concepts
-  for (const s of topic.subtopics) {
-    // Remove this concept from other concepts' connections
-    data.topics.forEach(t => t.subtopics.forEach(sub => {
-      sub.connections = sub.connections.filter(c => c.id !== s.id);
-    }));
-    await dbDelete('concepts', s.id);
+  const blankReview = { sessions: 0, lastSession: -1, easeScore: 2.5, interval: 1, nextReviewSession: 0 };
+
+  // Reset every item in memory and DB
+  for (const item of data.items) {
+    item.review = { ...blankReview };
+    await saveItem(item);
   }
 
-  // Save updated connections for all affected concepts
-  for (const t of data.topics) {
-    if (t.id === topicId) continue;
-    for (const sub of t.subtopics) {
-      await saveConcept(sub, t.id, t.name);
-    }
-  }
+  // Reset session meta
+  data.sessionCount    = 0;
+  data.lastSessionDate = '';
+  data.streak          = 0;
+  await saveMeta();
 
-  await dbDelete('topics', topicId);
-  data.topics = data.topics.filter(t => t.id !== topicId);
-
-  // If we were viewing a concept from this topic, go back to dashboard
-  if (window._currentConceptId && topic.subtopics.find(s => s.id === window._currentConceptId)) {
-    showView('dashboard');
-  } else {
-    renderSidebar();
-    renderDashboard();
-  }
-}
-
-async function deleteConcept(conceptId) {
-  const found = getSubtopic(conceptId);
-  if (!found) return;
-  const { subtopic: s, topic: t } = found;
-  const confirmed = confirm(`Delete concept "${s.name}"? This cannot be undone.`);
-  if (!confirmed) return;
-
-  // Remove from all other concepts' connections
-  data.topics.forEach(topic => topic.subtopics.forEach(sub => {
-    sub.connections = sub.connections.filter(c => c.id !== conceptId);
-  }));
-
-  // Save updated connections for affected concepts
-  for (const topic of data.topics) {
-    for (const sub of topic.subtopics) {
-      if (sub.id !== conceptId && sub.connections.length >= 0) {
-        await saveConcept(sub, topic.id, topic.name);
-      }
-    }
-  }
-
-  await dbDelete('concepts', conceptId);
-  t.subtopics = t.subtopics.filter(sub => sub.id !== conceptId);
-
-  if (window._currentConceptId === conceptId) {
-    showView('dashboard');
-  } else {
-    renderSidebar();
-    renderDashboard();
-  }
+  renderSidebar();
+  renderDashboard();
+  closeSidebar();
+  alert('Stats reset. All items are due again.');
 }
 
 // ============================================================
