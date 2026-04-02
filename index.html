@@ -501,6 +501,7 @@
               <div class="review-actions">
                 <button class="btn-reveal" onclick="revealAnswer()">Reveal Reference →</button>
                 <button class="btn-skip" onclick="skipCard()">Skip ↷</button>
+                <button class="btn-skip" id="btnBack" onclick="goBackCard()" style="display:none;">← Back</button>
               </div>
               <div class="grade-section" id="gradeSection">
                 <div class="reference-answer" id="referenceAnswer"></div>
@@ -588,11 +589,21 @@ let data = {
 // PERSISTENCE
 // ============================================================
 async function saveMeta() {
-  await SB.upsert('topics', { id: '__meta__', name: JSON.stringify({
+  const payload = JSON.stringify({
     sessionCount: data.sessionCount,
     lastSessionDate: data.lastSessionDate,
     streak: data.streak
-  })});
+  });
+  // Try update first, insert if not exists
+  const updateRes = await fetch(`${SUPABASE_URL}/rest/v1/topics?id=eq.__meta__`, {
+    method: 'PATCH',
+    headers: { ...SB.headers, 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ name: payload })
+  });
+  if (!updateRes.ok) {
+    // Row doesn't exist yet, insert it
+    await SB.upsert('topics', { id: '__meta__', name: payload });
+  }
 }
 
 async function saveTopic(topic) {
@@ -735,7 +746,7 @@ function updateItemReview(item, grade) {
 // ============================================================
 // SESSION / STREAK
 // ============================================================
-function bumpSession() {
+async function bumpSession() {
   const today = new Date().toISOString().split('T')[0];
   if (data.lastSessionDate === today) return;
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -743,7 +754,7 @@ function bumpSession() {
     : data.lastSessionDate === '' ? 1 : 1;
   data.sessionCount++;
   data.lastSessionDate = today;
-  saveMeta();
+  await saveMeta();
 }
 
 // ============================================================
@@ -1087,6 +1098,7 @@ let reviewQueue = [];
 let reviewIndex = 0;
 let reviewResults = { graded: 0, skipped: 0, again: 0 };
 let sessionBumped = false;
+let reviewHistory = []; // { itemId, grade, prevReview } for undoing grades
 
 function startReview(topicId = null, type = null, includeAll = false) {
   reviewQueue = buildReviewQueue(topicId, type, includeAll);
@@ -1097,6 +1109,7 @@ function startReview(topicId = null, type = null, includeAll = false) {
   reviewIndex = 0;
   reviewResults = { graded: 0, skipped: 0, again: 0 };
   sessionBumped = false;
+  reviewHistory = [];
 
   const topic = topicId ? getTopic(topicId) : null;
   showView('review');
@@ -1114,6 +1127,8 @@ function showReviewCard() {
   document.getElementById('progressText').textContent = `${reviewIndex + 1} / ${reviewQueue.length}`;
   document.getElementById('reviewTextarea').value = '';
   document.getElementById('gradeSection').classList.remove('visible');
+  // Show back button whenever we're past the first card
+  document.getElementById('btnBack').style.display = reviewIndex > 0 ? 'inline-block' : 'none';
 
   const item = reviewQueue[reviewIndex];
   const topic = getTopic(item.topic_id);
@@ -1140,16 +1155,50 @@ function skipCard() {
   skipped._skipped = true;
   reviewQueue.push(skipped);
   reviewResults.skipped++;
+  // Push a skip entry so back can undo it
+  reviewHistory.push({ type: 'skip', item: skipped });
+  reviewIndex++;
   if (reviewQueue.slice(reviewIndex).every(x => x._skipped)) { finishReview(); return; }
   showReviewCard();
 }
 
+async function goBackCard() {
+  if (reviewIndex === 0) return;
+
+  const prev = reviewHistory.pop();
+
+  if (prev?.type === 'skip') {
+    // Re-insert skipped card back at current position
+    reviewIndex--;
+    const idx = reviewQueue.indexOf(prev.item);
+    if (idx > reviewIndex) reviewQueue.splice(idx, 1);
+    reviewQueue.splice(reviewIndex, 0, prev.item);
+    prev.item._skipped = false;
+    reviewResults.skipped = Math.max(0, reviewResults.skipped - 1);
+  } else if (prev?.type === 'grade') {
+    // Restore previous review state
+    const live = getItem(prev.itemId);
+    if (live) {
+      live.review = { ...prev.prevReview };
+      await saveItem(live);
+    }
+    if (prev.grade === 0) reviewResults.again = Math.max(0, reviewResults.again - 1);
+    reviewResults.graded = Math.max(0, reviewResults.graded - 1);
+    reviewIndex--;
+  }
+
+  document.getElementById('gradeSection').classList.remove('visible');
+  renderSidebar();
+  showReviewCard();
+}
+
 async function gradeCard(grade) {
-  if (!sessionBumped) { bumpSession(); sessionBumped = true; }
+  if (!sessionBumped) { await bumpSession(); sessionBumped = true; }
 
   const item = reviewQueue[reviewIndex];
   const live = getItem(item.id);
   if (live) {
+    reviewHistory.push({ type: 'grade', itemId: live.id, grade, prevReview: { ...live.review } });
     updateItemReview(live, grade);
     await saveItem(live);
   }
@@ -1280,28 +1329,25 @@ function renderStats() {
 // ============================================================
 async function resetAllStats() {
   const confirmed = confirm(
-    'Reset all review stats?\n\nThis will zero out every item\'s session count, ease score, and interval. Your topics and items stay intact. This cannot be undone.'
+    'Reset all review stats?\n\nThis zeroes every item\'s session count, ease score and interval. Your topics and items stay intact. This cannot be undone.'
   );
   if (!confirmed) return;
 
-  const blankReview = { sessions: 0, lastSession: -1, easeScore: 2.5, interval: 1, nextReviewSession: 0 };
-
-  // Reset every item in memory and DB
+  const blank = { sessions: 0, lastSession: -1, easeScore: 2.5, interval: 1, nextReviewSession: 0 };
   for (const item of data.items) {
-    item.review = { ...blankReview };
+    item.review = { ...blank };
     await saveItem(item);
   }
 
-  // Reset session meta
   data.sessionCount    = 0;
   data.lastSessionDate = '';
   data.streak          = 0;
   await saveMeta();
 
-  renderSidebar();
-  renderDashboard();
+  // Reload from DB to guarantee UI reflects actual saved state
+  await loadFromDB();
   closeSidebar();
-  alert('Stats reset. All items are due again.');
+  alert('Done. All stats reset — every item is due again.');
 }
 
 // ============================================================
