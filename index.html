@@ -434,10 +434,14 @@
       <button class="nav-btn" onclick="showView('stats')" id="nav-stats">
         <span class="icon">◎</span> Stats
       </button>
+      <button class="nav-btn" onclick="showView('help')" id="nav-help">
+        <span class="icon">?</span> How to Use
+      </button>
     </nav>
     <div class="topics-section" id="topicsList"></div>
     <div class="sidebar-footer">
       <button class="add-btn" onclick="openAddTopicModal()"><span>+</span> Add Topic</button>
+      <button class="add-btn" style="margin-top:6px;border-color:var(--border);color:var(--text3);" onclick="openDailyLimitModal()">⚙ Daily new: <span id="dailyLimitLabel">20</span></button>
       <button class="add-btn" style="margin-top:6px;border-color:var(--border);color:var(--text3);" onclick="resetAllStats()">↺ Reset Stats</button>
     </div>
   </aside>
@@ -483,6 +487,129 @@
         <div id="statsContent"></div>
       </div>
 
+      <!-- HELP -->
+      <div class="view" id="view-help">
+        <div style="max-width:680px;">
+
+          <div style="margin-bottom:28px;">
+            <div class="section-title">What is NetMind?</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.9;">
+              NetMind is a spaced repetition system built around active recall — you write answers, not just flip cards. It uses the SM-2 algorithm to schedule when each item comes back, so you study smarter, not harder. Items you struggle with come back sooner. Items you know well space out further.
+            </div>
+          </div>
+
+          <div style="margin-bottom:28px;">
+            <div class="section-title">Structure</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+              <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);line-height:1.9;">
+                Everything lives inside a <strong style="color:var(--text)">Topic</strong>. Each topic has four folders:
+              </div>
+              <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;">
+                <span class="type-badge atomic" style="margin-top:2px;flex-shrink:0;">Atomic</span>
+                <div style="font-size:12px;color:var(--text2);line-height:1.7;">Single-fact questions. <em>"What is a MAC address table?"</em> — isolated recall, one correct answer.</div>
+              </div>
+              <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;">
+                <span class="type-badge process" style="margin-top:2px;flex-shrink:0;">Process</span>
+                <div style="font-size:12px;color:var(--text2);line-height:1.7;">Step-by-step reasoning. <em>"What happens when a switch receives a frame?"</em> — trace the logic in order.</div>
+              </div>
+              <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;">
+                <span class="type-badge problem" style="margin-top:2px;flex-shrink:0;">Problem</span>
+                <div style="font-size:12px;color:var(--text2);line-height:1.7;">Applied scenario. <em>"Host A sends a frame but the switch doesn't know B's MAC. What happens?"</em> — apply knowledge to a novel situation.</div>
+              </div>
+              <div style="padding:14px 18px;display:flex;gap:12px;align-items:flex-start;">
+                <span class="type-badge reconstruction" style="margin-top:2px;flex-shrink:0;">Reconstruction</span>
+                <div style="font-size:12px;color:var(--text2);line-height:1.7;">Full synthesis from scratch. <em>"Reconstruct how a packet travels across networks."</em> — the hardest type. You own the knowledge when you can rebuild it without notes.</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:28px;">
+            <div class="section-title">How a Review Session Works</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+              <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);line-height:1.7;">
+                <strong style="color:var(--text);">1. Write your answer</strong> — Before revealing anything, write out your answer in the text box. This is the most important step. The act of retrieving information is what builds memory.
+              </div>
+              <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);line-height:1.7;">
+                <strong style="color:var(--text);">2. Reveal reference</strong> — Compare your answer to the reference. Be honest with yourself.
+              </div>
+              <div style="padding:14px 18px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text2);line-height:1.7;">
+                <strong style="color:var(--text);">3. Grade yourself</strong> — Four options, each showing how many sessions until you see this card again:
+                <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                  <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
+                    <div style="font-weight:700;color:var(--weak);margin-bottom:3px;">Again</div>
+                    <div style="color:var(--text3);font-size:11px;">You missed key points or blanked. Card comes back in 1 session — today if you keep reviewing.</div>
+                  </div>
+                  <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
+                    <div style="font-weight:700;color:var(--warn);margin-bottom:3px;">Hard</div>
+                    <div style="color:var(--text3);font-size:11px;">Partial coverage. You got some of it but missed details. Interval grows slowly.</div>
+                  </div>
+                  <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
+                    <div style="font-weight:700;color:var(--ok);margin-bottom:3px;">Good</div>
+                    <div style="color:var(--text3);font-size:11px;">Mostly correct. Standard interval growth. Use this most of the time.</div>
+                  </div>
+                  <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;">
+                    <div style="font-weight:700;color:var(--accent);margin-bottom:3px;">Easy</div>
+                    <div style="color:var(--text3);font-size:11px;">Complete and confident. Larger interval jump. Only use if it was genuinely trivial.</div>
+                  </div>
+                </div>
+              </div>
+              <div style="padding:14px 18px;font-size:12px;color:var(--text2);line-height:1.7;">
+                <strong style="color:var(--text);">Again cards</strong> — come back 10 cards later in the same session, marked with "· AGAIN" in the type label so you know it's a retry. If you hit Again on the retry too, it won't requeue a third time — it just moves to the next session to avoid loops.
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:28px;">
+            <div class="section-title">SM-2 Scheduling</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;font-size:12px;color:var(--text2);line-height:1.9;">
+              Every item has an <strong style="color:var(--text)">interval</strong> (sessions until next review) and an <strong style="color:var(--text)">ease score</strong> (starts at 2.5, ranges 1.2–4.0). When you grade a card:<br><br>
+              <code style="background:var(--bg);padding:10px 14px;border-radius:6px;display:block;line-height:2;border:1px solid var(--border);">
+                Again → interval = 1 · ease −0.4<br>
+                Hard  → interval × 1.2 · ease −0.15<br>
+                Good  → interval × ease · no change<br>
+                Easy  → interval × ease × 1.3 · ease +0.2
+              </code>
+              <br>
+              A card you grade Good repeatedly: 1 → 2 → 5 → 12 → 30 sessions. The intervals compound — that's the point. Struggling cards stay close. Mastered cards drift far apart.
+            </div>
+          </div>
+
+          <div style="margin-bottom:28px;">
+            <div class="section-title">Daily New Card Limit</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;font-size:12px;color:var(--text2);line-height:1.9;">
+              Set via <strong style="color:var(--text)">⚙ Daily new</strong> in the sidebar. Defaults to 20. This caps how many brand-new (never-reviewed) cards appear per day. Cards you've already reviewed always show up when due, regardless of this limit.<br><br>
+              Without this limit, adding 100 cards at once means 100 new cards hit you immediately — overwhelming and counterproductive. The limit paces your learning. New cards queue up automatically for future days.
+            </div>
+          </div>
+
+          <div style="margin-bottom:28px;">
+            <div class="section-title">Other Controls</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+              <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:flex;gap:12px;font-size:12px;color:var(--text2);line-height:1.6;">
+                <strong style="color:var(--text);min-width:90px;">Skip ↷</strong> Moves the card to the end of the current queue without grading it. Priority unchanged. Use when you want to come back to it later this session.
+              </div>
+              <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:flex;gap:12px;font-size:12px;color:var(--text2);line-height:1.6;">
+                <strong style="color:var(--text);min-width:90px;">← Back</strong> Undoes the last action — grade or skip. Restores the card's previous review state in the database. You can go back multiple times.
+              </div>
+              <div style="padding:12px 18px;border-bottom:1px solid var(--border);display:flex;gap:12px;font-size:12px;color:var(--text2);line-height:1.6;">
+                <strong style="color:var(--text);min-width:90px;">⟳ Topic</strong> The small ⟳ next to each topic name starts a review scoped only to that topic. If nothing is due it asks if you want to review anyway.
+              </div>
+              <div style="padding:12px 18px;display:flex;gap:12px;font-size:12px;color:var(--text2);line-height:1.6;">
+                <strong style="color:var(--text);min-width:90px;">↺ Reset</strong> Zeroes all review stats — sessions, streak, ease scores, intervals. Topics and items stay. Use when starting fresh.
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:28px;">
+            <div class="section-title">Streak</div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;font-size:12px;color:var(--text2);line-height:1.9;">
+              Increments once per calendar day on your first graded card. Resets to 1 if you miss a day. Shows 🔥 at 2+ days. The streak only counts when you actually grade something — opening the app or skipping all cards doesn't count.
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <!-- REVIEW -->
       <div class="view" id="view-review">
         <div class="review-container">
@@ -507,10 +634,10 @@
                 <div class="reference-answer" id="referenceAnswer"></div>
                 <div class="grade-label-top">How well did you cover it?</div>
                 <div class="grade-buttons">
-                  <button class="grade-btn" onclick="gradeCard(0)"><span class="gl">Again</span><span class="gd">Missed it</span></button>
-                  <button class="grade-btn" onclick="gradeCard(1)"><span class="gl">Hard</span><span class="gd">Partial</span></button>
-                  <button class="grade-btn" onclick="gradeCard(2)"><span class="gl">Good</span><span class="gd">Mostly right</span></button>
-                  <button class="grade-btn" onclick="gradeCard(3)"><span class="gl">Easy</span><span class="gd">Nailed it</span></button>
+                  <button class="grade-btn" onclick="gradeCard(0)"><span class="gl">Again</span><span class="gd" id="gd-0">—</span></button>
+                  <button class="grade-btn" onclick="gradeCard(1)"><span class="gl">Hard</span><span class="gd" id="gd-1">—</span></button>
+                  <button class="grade-btn" onclick="gradeCard(2)"><span class="gl">Good</span><span class="gd" id="gd-2">—</span></button>
+                  <button class="grade-btn" onclick="gradeCard(3)"><span class="gl">Easy</span><span class="gd" id="gd-3">—</span></button>
                 </div>
               </div>
             </div>
@@ -581,8 +708,11 @@ let data = {
   sessionCount: 0,
   lastSessionDate: '',
   streak: 0,
-  topics: [],  // [{ id, name }]
-  items: []    // [{ id, topic_id, type, question, answer, tags, review }]
+  dailyNewLimit: 20,  // max new cards introduced per day
+  dailyNewSeen: 0,    // how many new cards shown today
+  dailyNewDate: '',   // date when dailyNewSeen was last reset
+  topics: [],
+  items: []
 };
 
 // ============================================================
@@ -592,17 +722,20 @@ async function saveMeta() {
   const payload = JSON.stringify({
     sessionCount: data.sessionCount,
     lastSessionDate: data.lastSessionDate,
-    streak: data.streak
+    streak: data.streak,
+    dailyNewLimit: data.dailyNewLimit,
+    dailyNewSeen: data.dailyNewSeen,
+    dailyNewDate: data.dailyNewDate
   });
-  // Try update first, insert if not exists
-  const updateRes = await fetch(`${SUPABASE_URL}/rest/v1/topics?id=eq.__meta__`, {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/topics?id=eq.__meta__`, {
     method: 'PATCH',
     headers: { ...SB.headers, 'Prefer': 'return=minimal' },
     body: JSON.stringify({ name: payload })
   });
-  if (!updateRes.ok) {
-    // Row doesn't exist yet, insert it
-    await SB.upsert('topics', { id: '__meta__', name: payload });
+  if (!r.ok) {
+    const err = await r.text();
+    console.error('saveMeta failed:', err);
+    throw new Error(err);
   }
 }
 
@@ -637,6 +770,9 @@ async function loadFromDB() {
         data.sessionCount    = m.sessionCount    || 0;
         data.lastSessionDate = m.lastSessionDate || '';
         data.streak          = m.streak          || 0;
+        data.dailyNewLimit   = m.dailyNewLimit   ?? 20;
+        data.dailyNewSeen    = m.dailyNewSeen    || 0;
+        data.dailyNewDate    = m.dailyNewDate    || '';
       } catch(e) {}
     }
 
@@ -709,17 +845,38 @@ const TYPE_LABELS = {
 
 const TYPES = ['atomic', 'process', 'problem', 'reconstruction'];
 
+function isNewCard(item) {
+  return !item.review || item.review.sessions === 0;
+}
+
 function isDue(item) {
-  if (!item.review || item.review.sessions === 0) return true;
+  if (isNewCard(item)) return true;
   return !item.review.nextReviewSession || data.sessionCount >= item.review.nextReviewSession;
 }
 
+function resetDailyNewIfNeeded() {
+  const today = new Date().toISOString().split('T')[0];
+  if (data.dailyNewDate !== today) {
+    data.dailyNewSeen = 0;
+    data.dailyNewDate = today;
+  }
+}
+
 function dueCount(topicId, type) {
-  return getTopicItems(topicId, type).filter(isDue).length;
+  resetDailyNewIfNeeded();
+  const items = getTopicItems(topicId, type);
+  const reviewDue  = items.filter(i => !isNewCard(i) && isDue(i)).length;
+  const newAllowed = Math.max(0, data.dailyNewLimit - data.dailyNewSeen);
+  const newDue     = Math.min(items.filter(isNewCard).length, newAllowed);
+  return reviewDue + newDue;
 }
 
 function totalDue() {
-  return data.items.filter(isDue).length;
+  resetDailyNewIfNeeded();
+  const reviewDue  = data.items.filter(i => !isNewCard(i) && isDue(i)).length;
+  const newAllowed = Math.max(0, data.dailyNewLimit - data.dailyNewSeen);
+  const newDue     = Math.min(data.items.filter(isNewCard).length, newAllowed);
+  return reviewDue + newDue;
 }
 
 // ============================================================
@@ -730,6 +887,14 @@ function nextInterval(currentInterval, ease, grade) {
   if (grade === 1) return Math.max(1, Math.floor(currentInterval * 1.2));
   if (grade === 2) return Math.max(1, Math.floor(currentInterval * ease));
   return Math.max(1, Math.floor(currentInterval * ease * 1.3));
+}
+
+function previewIntervals(item) {
+  // Calculate what each grade button would schedule, without modifying the item
+  const ease = item?.review?.easeScore ?? 2.5;
+  const ci   = item?.review?.interval  ?? 1;
+  const fmt  = n => n === 1 ? '1 session' : `${n} sessions`;
+  return [0,1,2,3].map(g => fmt(nextInterval(ci, ease, g)));
 }
 
 function updateItemReview(item, grade) {
@@ -770,11 +935,23 @@ function computePriority(item) {
 // REVIEW QUEUE
 // ============================================================
 function buildReviewQueue(topicId = null, type = null, includeAll = false) {
+  resetDailyNewIfNeeded();
   let pool = data.items;
   if (topicId) pool = pool.filter(i => i.topic_id === topicId);
   if (type)    pool = pool.filter(i => i.type === type);
-  if (!includeAll) pool = pool.filter(isDue);
-  return [...pool]
+
+  if (includeAll) {
+    return [...pool]
+      .map(i => ({ ...i, priority: computePriority(i) }))
+      .sort((a, b) => b.priority - a.priority);
+  }
+
+  const reviewDue = pool.filter(i => !isNewCard(i) && isDue(i));
+  const newCards  = pool.filter(isNewCard);
+  const newAllowed = Math.max(0, data.dailyNewLimit - data.dailyNewSeen);
+  const newToShow  = newCards.slice(0, newAllowed);
+
+  return [...reviewDue, ...newToShow]
     .map(i => ({ ...i, priority: computePriority(i) }))
     .sort((a, b) => b.priority - a.priority);
 }
@@ -833,9 +1010,10 @@ function showView(name) {
   document.getElementById('nav-' + name)?.classList.add('active');
   closeSidebar();
 
-  if      (name === 'dashboard') { renderDashboard(); document.getElementById('topbarTitle').textContent = 'Dashboard'; document.getElementById('topbarPath').innerHTML = ''; }
-  else if (name === 'stats')     { renderStats();     document.getElementById('topbarTitle').textContent = 'Stats';     document.getElementById('topbarPath').innerHTML = ''; }
-  else if (name === 'review')    { document.getElementById('topbarTitle').textContent = 'Review Session'; document.getElementById('topbarPath').innerHTML = ''; }
+  if      (name === 'dashboard') { renderDashboard(); document.getElementById('topbarTitle').textContent = 'Dashboard';   document.getElementById('topbarPath').innerHTML = ''; }
+  else if (name === 'stats')     { renderStats();     document.getElementById('topbarTitle').textContent = 'Stats';       document.getElementById('topbarPath').innerHTML = ''; }
+  else if (name === 'help')      {                    document.getElementById('topbarTitle').textContent = 'How to Use';  document.getElementById('topbarPath').innerHTML = ''; }
+  else if (name === 'review')    {                    document.getElementById('topbarTitle').textContent = 'Review Session'; document.getElementById('topbarPath').innerHTML = ''; }
 }
 
 function toggleSidebar() {
@@ -853,6 +1031,10 @@ function closeSidebar() {
 function renderDashboard() {
   const total = data.items.length;
   const due   = totalDue();
+
+  // Keep daily limit label in sidebar in sync
+  const limitLabel = document.getElementById('dailyLimitLabel');
+  if (limitLabel) limitLabel.textContent = data.dailyNewLimit;
 
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card"><div class="stat-label">Total Items</div><div class="stat-value accent">${total}</div></div>
@@ -1122,12 +1304,17 @@ function startReview(topicId = null, type = null, includeAll = false) {
 function showReviewCard() {
   if (reviewIndex >= reviewQueue.length) { finishReview(); return; }
 
-  const pct = (reviewIndex / reviewQueue.length) * 100;
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressText').textContent = `${reviewIndex + 1} / ${reviewQueue.length}`;
+  const totalOriginal = reviewQueue.filter(i => !i._requeued).length;
+  const currentPos = reviewQueue.slice(0, reviewIndex + 1).filter(i => !i._requeued).length;
+  const againCount = reviewQueue.slice(reviewIndex).filter(i => i._requeued).length;
+
+  document.getElementById('progressFill').style.width = `${(reviewIndex / reviewQueue.length) * 100}%`;
+  document.getElementById('progressText').textContent = againCount > 0
+    ? `${currentPos} / ${totalOriginal} · ${againCount} again`
+    : `${currentPos} / ${totalOriginal}`;
+
   document.getElementById('reviewTextarea').value = '';
   document.getElementById('gradeSection').classList.remove('visible');
-  // Show back button whenever we're past the first card
   document.getElementById('btnBack').style.display = reviewIndex > 0 ? 'inline-block' : 'none';
 
   const item = reviewQueue[reviewIndex];
@@ -1140,7 +1327,9 @@ function showReviewCard() {
   };
 
   document.getElementById('reviewType').className = `review-type t-${item.type}`;
-  document.getElementById('reviewType').textContent = TYPE_LABELS[item.type].toUpperCase();
+  document.getElementById('reviewType').textContent = item._requeued
+    ? `${TYPE_LABELS[item.type].toUpperCase()} · AGAIN`
+    : TYPE_LABELS[item.type].toUpperCase();
   document.getElementById('reviewPrompt').textContent = item.question;
   document.getElementById('reviewContext').textContent = `${topic?.name || ''} · ${typePrompts[item.type]}`;
   document.getElementById('referenceAnswer').textContent = item.answer || 'No reference answer yet — edit this item to add one.';
@@ -1148,6 +1337,14 @@ function showReviewCard() {
 
 function revealAnswer() {
   document.getElementById('gradeSection').classList.add('visible');
+  // Show interval previews on grade buttons
+  const item = reviewQueue[reviewIndex];
+  const live = getItem(item.id);
+  const previews = previewIntervals(live);
+  ['0','1','2','3'].forEach((g, i) => {
+    const el = document.getElementById('gd-' + g);
+    if (el) el.textContent = previews[i];
+  });
 }
 
 function skipCard() {
@@ -1176,12 +1373,12 @@ async function goBackCard() {
     prev.item._skipped = false;
     reviewResults.skipped = Math.max(0, reviewResults.skipped - 1);
   } else if (prev?.type === 'grade') {
-    // Restore previous review state
     const live = getItem(prev.itemId);
     if (live) {
       live.review = { ...prev.prevReview };
       await saveItem(live);
     }
+    if (prev.wasNew) data.dailyNewSeen = Math.max(0, data.dailyNewSeen - 1);
     if (prev.grade === 0) reviewResults.again = Math.max(0, reviewResults.again - 1);
     reviewResults.graded = Math.max(0, reviewResults.graded - 1);
     reviewIndex--;
@@ -1198,13 +1395,25 @@ async function gradeCard(grade) {
   const item = reviewQueue[reviewIndex];
   const live = getItem(item.id);
   if (live) {
-    reviewHistory.push({ type: 'grade', itemId: live.id, grade, prevReview: { ...live.review } });
+    const wasNew = isNewCard(live);
+    reviewHistory.push({ type: 'grade', itemId: live.id, grade, prevReview: { ...live.review }, wasNew });
     updateItemReview(live, grade);
+    if (wasNew) {
+      data.dailyNewSeen++;
+      await saveMeta();
+    }
     await saveItem(live);
   }
 
   await saveMeta();
-  if (grade === 0) reviewResults.again++;
+  if (grade === 0) {
+    reviewResults.again++;
+    // Only requeue if this card hasn't already been requeued (prevents infinite loops)
+    if (!item._requeued) {
+      const insertAt = Math.min(reviewIndex + 1 + 10, reviewQueue.length);
+      reviewQueue.splice(insertAt, 0, { ...item, _requeued: true });
+    }
+  }
   reviewResults.graded++;
   reviewIndex++;
   document.getElementById('gradeSection').classList.remove('visible');
@@ -1325,6 +1534,29 @@ function renderStats() {
 }
 
 // ============================================================
+// DAILY LIMIT MODAL
+// ============================================================
+function openDailyLimitModal() {
+  document.getElementById('modalTitle').textContent = 'Daily New Card Limit';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="field">
+      <label>New cards per day</label>
+      <input id="f-limit" type="number" min="1" max="200" value="${data.dailyNewLimit}">
+    </div>
+    <div class="hint">Cards you've never seen before. Already-reviewed cards always appear when due, regardless of this limit.</div>`;
+  document.getElementById('modalSaveBtn').onclick = async () => {
+    const val = parseInt(document.getElementById('f-limit').value);
+    if (!val || val < 1) return;
+    data.dailyNewLimit = val;
+    await saveMeta();
+    document.getElementById('dailyLimitLabel').textContent = val;
+    closeModal();
+    renderDashboard();
+  };
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+// ============================================================
 // RESET
 // ============================================================
 async function resetAllStats() {
@@ -1342,9 +1574,10 @@ async function resetAllStats() {
   data.sessionCount    = 0;
   data.lastSessionDate = '';
   data.streak          = 0;
+  data.dailyNewSeen    = 0;
+  data.dailyNewDate    = '';
   await saveMeta();
 
-  // Reload from DB to guarantee UI reflects actual saved state
   await loadFromDB();
   closeSidebar();
   alert('Done. All stats reset — every item is due again.');
