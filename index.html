@@ -1555,38 +1555,105 @@ function openDailyLimitModal() {
   };
   document.getElementById('modalOverlay').classList.add('open');
 }
-
 // ============================================================
-// RESET
+// RESET STATS - FIXED VERSION
 // ============================================================
 async function resetAllStats() {
   const confirmed = confirm(
-    'Reset all review stats?\n\nThis zeroes every item\'s session count, ease score and interval. Your topics and items stay intact. This cannot be undone.'
+    '⚠️ RESET ALL STATS\n\n' +
+    'This will:\n' +
+    '• Zero out every item\'s session count\n' +
+    '• Reset ease scores to 2.5\n' +
+    '• Reset intervals to 1 session\n' +
+    '• Clear all review history\n' +
+    '• Reset daily new card counter\n' +
+    '• Reset session counter and streak\n\n' +
+    'Your topics and items stay intact.\n\n' +
+    'This CANNOT be undone.\n\n' +
+    'Are you absolutely sure?'
   );
+  
   if (!confirmed) return;
 
-  const blank = { sessions: 0, lastSession: -1, easeScore: 2.5, interval: 1, nextReviewSession: 0 };
-  for (const item of data.items) {
-    item.review = { ...blank };
-    await saveItem(item);
+  showLoading(true);
+  
+  try {
+    // Create blank review state template
+    const blankReview = { 
+      sessions: 0, 
+      lastSession: -1, 
+      easeScore: 2.5, 
+      interval: 1, 
+      nextReviewSession: 0 
+    };
+    
+    // Reset each item's review data and save to Supabase
+    for (const item of data.items) {
+      item.review = { ...blankReview };
+      await saveItem(item);
+    }
+    
+    // Reset global stats
+    const today = new Date().toISOString().split('T')[0];
+    data.sessionCount = 0;
+    data.lastSessionDate = '';
+    data.streak = 0;
+    data.dailyNewSeen = 0;
+    data.dailyNewDate = today; // Set to today so new cards become available immediately
+    data.dailyNewLimit = data.dailyNewLimit || 20; // Keep the existing limit
+    
+    // Save meta data to Supabase
+    await saveMeta();
+    
+    // Clear any active review session
+    if (reviewQueue && reviewQueue.length > 0) {
+      reviewQueue = [];
+      reviewIndex = 0;
+      reviewResults = { graded: 0, skipped: 0, again: 0 };
+      reviewHistory = [];
+      sessionBumped = false;
+    }
+    
+    // Refresh all UI components
+    await refreshAllUI();
+    
+    showLoading(false);
+    
+    // Show success message
+    alert('✓ Stats reset complete!\n\nAll items are now due for review.\nYour daily new card limit is still set to ' + data.dailyNewLimit + '.');
+    
+    // Navigate to dashboard
+    showView('dashboard');
+    
+  } catch (error) {
+    console.error('Reset failed:', error);
+    showLoading(false);
+    alert('❌ Reset failed: ' + error.message + '\n\nPlease refresh the page and try again.');
   }
-
-  data.sessionCount    = 0;
-  data.lastSessionDate = '';
-  data.streak          = 0;
-  data.dailyNewSeen    = 0;
-  data.dailyNewDate    = '';
-  await saveMeta();
-
-  await loadFromDB();
-  closeSidebar();
-  alert('Done. All stats reset — every item is due again.');
 }
 
-// ============================================================
-// INIT
-// ============================================================
-(async () => { await loadFromDB(); })();
-</script>
-</body>
-</html>
+// Helper function to refresh all UI components
+async function refreshAllUI() {
+  renderSidebar();
+  renderDashboard();
+  renderStats();
+  
+  // Update daily limit label in sidebar
+  const limitLabel = document.getElementById('dailyLimitLabel');
+  if (limitLabel) limitLabel.textContent = data.dailyNewLimit;
+  
+  // Update queue badge
+  const queueBadge = document.getElementById('queueBadge');
+  const totalDueCards = totalDue();
+  if (totalDueCards > 0) {
+    queueBadge.textContent = `${totalDueCards} due`;
+    queueBadge.classList.add('visible');
+  } else {
+    queueBadge.classList.remove('visible');
+  }
+  
+  // If we're on the items view, refresh that too
+  if (_currentTopicId && _currentType) {
+    renderItemList();
+  }
+}
