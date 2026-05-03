@@ -727,10 +727,10 @@ async function saveMeta() {
     dailyNewSeen: data.dailyNewSeen,
     dailyNewDate: data.dailyNewDate
   });
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/topics?id=eq.__meta__`, {
-    method: 'PATCH',
-    headers: { ...SB.headers, 'Prefer': 'return=minimal' },
-    body: JSON.stringify({ name: payload })
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/topics?on_conflict=id`, {
+    method: 'POST',
+    headers: { ...SB.headers, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify({ id: '__meta__', name: payload })
   });
   if (!r.ok) {
     const err = await r.text();
