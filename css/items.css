@@ -1,0 +1,127 @@
+/* ITEM LIST VIEW */
+.item-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.item-list-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--sans);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.item-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.item-card:hover {
+  border-color: var(--border2);
+}
+
+.item-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 14px 16px;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.item-card-question {
+  font-size: 13px;
+  color: var(--text);
+  flex: 1;
+  line-height: 1.6;
+}
+
+.item-card-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.item-action-btn {
+  background: none;
+  border: none;
+  color: var(--text3);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 3px 7px;
+  border-radius: 4px;
+  transition: all 0.15s;
+  font-family: var(--mono);
+}
+
+.item-action-btn:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+.item-action-btn.del:hover {
+  color: var(--weak);
+}
+
+.item-card-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0 16px 10px;
+  font-size: 10px;
+  color: var(--text3);
+}
+
+.due-tag {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: rgba(0, 212, 255, 0.08);
+  color: var(--accent);
+  border: 1px solid rgba(0, 212, 255, 0.15);
+}
+
+.due-tag.new-tag {
+  background: var(--surface2);
+  color: var(--text3);
+  border-color: var(--border2);
+}
+
+.due-tag.due-now {
+  background: rgba(255, 59, 92, 0.08);
+  color: var(--weak);
+  border-color: rgba(255, 59, 92, 0.2);
+}
+
+.item-card-answer {
+  display: none;
+  padding: 14px 16px;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.8;
+  border-top: 1px solid var(--border);
+  white-space: pre-wrap;
+  background: var(--surface2);
+}
+
+.item-card.open .item-card-answer {
+  display: block;
+}
+
+.item-tag-label {
+  font-size: 9px;
+  color: var(--text3);
+  background: var(--surface2);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border2);
+}
